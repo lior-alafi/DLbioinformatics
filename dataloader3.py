@@ -30,7 +30,32 @@ class BasePreprocessing(ABC):
 
 
 # --- Concrete Preprocessing Classes ---
+class EmbeddingKMERPreprocessing(BasePreprocessing):
+    def __init__(self,filename,n_gram_size=1,pad_token='<PAD>'):
+        super().__init__(filename, n_gram_size, pad_token)
 
+        all_tokens_in_data = set()
+        self.max_kmers_size = 0
+        with open(filename, 'r') as f:
+            for line in f:
+                kmers = self.generate_kmers(line, self.n_gram_size)
+                self.max_kmers_size = max(len(kmers),self.max_kmers_size)
+                all_tokens_in_data = all_tokens_in_data | set(kmers)
+
+        self.vocab = {kmer: i+1 for i,kmer in enumerate(sorted(list(all_tokens_in_data)))}
+        self.vocab[pad_token] = 0
+    def generate_kmers(self,seq, k):
+        """Generates non-overlapping k-mers from a sequence."""
+        if len(seq) < k:
+            return []  # Return empty list if sequence is shorter than k-mer size
+        return [seq[i:i + k] for i in range(0, len(seq) - k + 1, k)]
+
+    def process(self, sequence, max_len):
+        numerical_seq = [self.vocab.get(char, self.vocab[self.pad_token]) for char in self.generate_kmers(sequence,self.n_gram_size)]
+        padded = np.pad(numerical_seq, (max_len - len(numerical_seq), 0), 'constant',
+                                    constant_values=self.vocab[self.pad_token])
+
+        return torch.tensor(padded, dtype=torch.long)
 class EmbeddingPreprocessing(BasePreprocessing):
     def __init__(self, filename, n_gram_size=1, pad_token='<PAD>'):
         super().__init__(filename, n_gram_size, pad_token)

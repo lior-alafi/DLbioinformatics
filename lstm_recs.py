@@ -10,7 +10,8 @@ from shitty_dataloader import TextDataset
 from scipy.stats import pearsonr,spearmanr
 
 # Example usage:
-dataset = TextDataset('data/training_seqs.txt', 'data/training_RBPs2.txt')
+train_dataset = TextDataset('data/train_rna_seq.50000.txt', 'data/train_rbps2_seq.50.txt')
+test_dataset = TextDataset('data/validation_rna_seq.10000.txt', 'data/validation_rbps2_seq.10.txt')
 #dataset size  = 24135600
 # rpb_seq, nec_seq, rpb_index, nec_index = dataset[50]
 # print(f"RBP Sequence: {rpb_seq}")
@@ -29,36 +30,40 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     #     return out
 
 EPOCHS = 10
-model = RecommendationModel(dataset.nec_2_index, dataset.rbp_2_index, hidden_size=64, output_size=1).to(device)
-model.load_state_dict(torch.load('model/saved_models/lior_8_7_25.pt'))
+model = RecommendationModel(train_dataset.rna_mapping, train_dataset.amino_acid_mapping, hidden_size=64, output_size=1)
+model.to(device)
+# model.load_state_dict(torch.load('model/saved_models/lior_8_7_25.pt'))
 criterion = nn.MSELoss()
 optimizer = optim.Adam(model.parameters(), lr=0.001)
 y = []
-with open('data/training_data2.txt', 'r') as f:
+with open('data/train_scores.50000.txt', 'r') as f:
             for line in f:
                 y.append([float(x) for x in line.strip().split()])
 
+y_val = []
+with open('data/validation_scores.10000.txt', 'r') as f:
+            for line in f:
+                y_val.append([float(x) for x in line.strip().split()])
 
 print(device)
 print(np.array(y).shape) #(120678, 200)
 # Training loop
 # 0 - 200000
-start_range = 200000
-end_range = 250000 # 200000
+
 losses = []
 
 for epoch in range(EPOCHS):
     curr_losses = []
     y_orig = []
     y_hats = []
-    for i in tqdm(range(end_range-start_range),'looping through dataset'):
-        idxs = np.arange(start_range, end_range)
+    for i in tqdm(range(train_dataset.length),'looping through dataset'):
+        idxs = np.arange(train_dataset.length)
         np.random.shuffle(idxs)
-        rpb_seq, nec_seq, rpb_index, nec_index = dataset[idxs[i]]
+        rpb_seq, nec_seq, rpb_index, nec_index = train_dataset[idxs[i]]
         optimizer.zero_grad()
         rpb_seq = rpb_seq.unsqueeze(0).to(device)  # Add batch dimension
         nec_seq = nec_seq.unsqueeze(0).to(device)  # Add batch dimension
-        outputs = model(rpb_seq, nec_seq).to(device)
+        outputs = model(nec_seq,rpb_seq)
         targets = y[nec_index][rpb_index]  # Get the target value from y
 
         # Assuming the target is the RBP index
@@ -73,13 +78,13 @@ for epoch in range(EPOCHS):
     losses.append(np.average(curr_losses))
     y_orig = []
     y_hats = []
-    for j in range(end_range,end_range+1000):
-        rpb_seq, nec_seq, rpb_index, nec_index = dataset[j]
+    for j in range(test_dataset.length):
+        rpb_seq, nec_seq, rpb_index, nec_index = test_dataset[j]
         optimizer.zero_grad()
         rpb_seq = rpb_seq.unsqueeze(0).to(device)  # Add batch dimension
         nec_seq = nec_seq.unsqueeze(0).to(device)  # Add batch dimension
         outputs = model(rpb_seq, nec_seq).to(device)
-        targets = y[nec_index][rpb_index]  # Get the target value from y
+        targets = y_val[nec_index][rpb_index]  # Get the target value from y
 
         # Assuming the target is the RBP index
         targets = torch.tensor([targets], dtype=torch.float32).to(device)
