@@ -4,7 +4,7 @@ import torch.nn.functional as F
 #8_7_25
 class RecommendationModel(nn.Module):
     def __init__(self, nucleotide_vocab, amino_vocab, hidden_size, output_size,rna_n_gram_size=1,
-                 amino_n_gram_size=1,embedding_dim=128,lstm_layers=1):
+                 amino_n_gram_size=1,embedding_dim=128,fc_units=[256],lstm_layers=1):
         super(RecommendationModel, self).__init__()
         self.AGCU_V = nucleotide_vocab
         self.AA_V = amino_vocab
@@ -18,14 +18,14 @@ class RecommendationModel(nn.Module):
         self.AA_embedding = nn.Embedding(len(self.AA_V), self.embedding_dim)
         rna_lstm_input_size = self.embedding_dim if self.rna_n_gram_size <= 1 else self.embedding_dim*self.rna_n_gram_size
         amino_n_gram_size= self.embedding_dim if self.amino_n_gram_size <= 1 else self.embedding_dim*self.amino_n_gram_size
-        self.AGCU_lstm = nn.LSTM(rna_lstm_input_size, hidden_size, batch_first=True,num_layers=lstm_layers)
-        self.AA_lstm = nn.LSTM(amino_n_gram_size, hidden_size, batch_first=True,num_layers=lstm_layers)
+        self.AGCU_lstm = nn.LSTM(rna_lstm_input_size, hidden_size, batch_first=True,num_layers=lstm_layers,dropout=0.3)
+        self.AA_lstm = nn.LSTM(amino_n_gram_size, hidden_size, batch_first=True,num_layers=lstm_layers,dropout=0.3)
         # Concatenate the outputs of both LSTMs
         # and pass through a fully connected layer
-
+        self.dropout = nn.Dropout(p=0.3)
         self.concat_size = hidden_size * 2  # Two LSTM outputs
-        self.fc1 = nn.Linear(self.concat_size, 256)
-        self.fc2 = nn.Linear(256, output_size)
+        self.fc1 = nn.Linear(self.concat_size, fc_units[0])
+        self.fc2 = nn.Linear(fc_units[0], output_size)
 
     def forward(self,nec_seq, rpb_seq):
         """
@@ -75,12 +75,7 @@ class RecommendationModel(nn.Module):
 
         # Fully connected layers
         out = F.relu(self.fc1(combined))
+        out = self.dropout(out)
         out = self.fc2(out)
 
         return out
-    # docker
-    # run - -gpus = all - p
-    # 127.0
-    # .0
-    # .1: 9000:8080
-    # us - docker.pkg.dev / colab - images / public / runtime
