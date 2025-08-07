@@ -3,13 +3,11 @@ from datetime import datetime
 from matplotlib import pyplot as plt
 
 
-def metrics(train_losses,val_loss,
-            val_pearson,val_spearman,
-            HIDDEN_SIZE,LSTM_LAYER,LR,EPOCHS,EMBED_DIM):
+def metrics(model_name,train_losses,val_loss,
+            val_pearson,val_spearman):
     timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M")
-
     # יצירת שם קובץ כולל כל ההיפרפרמטרים
-    filename = f"training_metrics_LSTM{HIDDEN_SIZE}_l{LSTM_LAYER}_lr{LR}_e{EPOCHS}_embd_{EMBED_DIM}_{timestamp}.png"
+    filename = f"training_metrics_{model_name.replace(' ','_')}_{timestamp}.png"
 
     # יצירת תרשימים
     fig, axs = plt.subplots(2, 2, figsize=(12, 8))
@@ -39,9 +37,9 @@ def metrics(train_losses,val_loss,
     axs[1, 1].legend()
 
     # התאמה סופית
-    plt.suptitle(f"Training Metrics - LSTM({HIDDEN_SIZE}, layers={LSTM_LAYER}, LR={LR}, Epochs={EPOCHS})", fontsize=14)
+    plt.suptitle(f"Training Metrics - {model_name}", fontsize=14)
     plt.tight_layout(rect=[0, 0.03, 1, 0.95])
-    plt.savefig(filename)
+    plt.savefig(filename.replace(':','_'))
     plt.close()
 
     print(f"Saved training metrics to: {filename}")

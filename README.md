@@ -15,3 +15,12 @@ docker run --gpus=all -p 127.0.0.1: 9000:8080 nvidia/cuda:12.6.3-cudnn-runtime-u
 alternative: 
 https://hub.docker.com/r/cschranz/gpu-jupyter
 
+rna=120678
+rbps = 200
+train 
+rna: 102578
+rbps2:170
+
+val: 
+rna = 18100
+rbps= 30 

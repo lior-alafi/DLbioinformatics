@@ -11,6 +11,7 @@ from dataloader3 import CustomDataset, EmbeddingPreprocessing,EmbeddingKMERPrepr
 from model.lior_model import RecommendationModel
 from scipy.stats import pearsonr,spearmanr
 
+from model.lior_model_lstm2 import RecommendationModelLSTM
 from utils.metrics import metrics
 
 BATCH_SIZE = 128
@@ -45,7 +46,7 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 embed_options = [8,16,32,64,128,256]
 hidden_options = [32,64,128,256]
 lstm_l_options = [1,2,4,8,10]
-EPOCHS = 30
+EPOCHS = 150
 # EMBED_DIM = 128
 # HIDDEN_SIZE = 128
 # LSTM_LAYER = 4
@@ -67,15 +68,15 @@ def training_loop(train_loader, device, model, criterion, optimizer, curr_losses
 
         curr_losses.append(loss.item())
 
-for experiment in range(15):
-    EMBED_DIM = random.choice(embed_options)
-    HIDDEN_SIZE = random.choice(hidden_options)
-    LSTM_LAYER = random.choice(lstm_l_options)
+for experiment in range(1):
+    EMBED_DIM = 32 #random.choice(embed_options)
+    HIDDEN_SIZE = 256 #random.choice(hidden_options)
+    LSTM_LAYER = 2 #random.choice(lstm_l_options)
     LR= 0.001
 
 
 
-    model = RecommendationModel(rna_prep_emb_1.vocab, amino_prep_emb_1.vocab,embedding_dim=EMBED_DIM, hidden_size=HIDDEN_SIZE, output_size=1
+    model = RecommendationModelLSTM(rna_prep_emb_1.vocab, amino_prep_emb_1.vocab,embedding_dim=EMBED_DIM, hidden_size=HIDDEN_SIZE, output_size=1
                                 ,rna_n_gram_size=1,amino_n_gram_size=1,lstm_layers=LSTM_LAYER)
     model.to(device)
 
@@ -134,4 +135,4 @@ for experiment in range(15):
             print(f"Epoch [{epoch + 1}/{EPOCHS}], train_Loss: {losses[-1]:.4f}, val_loss: {val_loss_epoch:.4f}, pearson: {val_pearson[-1]:.4f}, spearman: {val_spearman[-1]:.4f}")
     # torch.save(model.state_dict(), 'model/saved_models/lior2_8_7_25.pt')
     print(losses)
-    metrics(losses,val_loss,val_pearson,val_spearman,HIDDEN_SIZE,LSTM_LAYER,LR,EPOCHS,EMBED_DIM)
+    metrics('LSTM2',losses,val_loss,val_pearson,val_spearman,HIDDEN_SIZE,LSTM_LAYER,LR,EPOCHS,EMBED_DIM)

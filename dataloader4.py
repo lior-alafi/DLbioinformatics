@@ -1,35 +1,24 @@
 import torch
 import numpy as np
 from torch.utils.data import Dataset
-from abc import ABC, abstractmethod  # ייבוא ABC ו-abstractmethod
-from sklearn.preprocessing import StandardScaler
+from abc import ABC, abstractmethod
 
 # --- Abstract Base Class for Preprocessing ---
 class BasePreprocessing(ABC):
-    def __init__(self, filename, n_gram_size=1, pad_token='<PAD>'):
+    def __init__(self, filename=None, n_gram_size=1, pad_token='<PAD>'):
         self.n_gram_size = n_gram_size
         self.pad_token = pad_token
-        # These will be populated by concrete classes
         self.vocab = None
         self.idx_to_char = None
-        self.char_to_idx = None  # For OneHot
+        self.char_to_idx = None
         self.vocab_size = 0
 
     @abstractmethod
-    def process(self, sequence, max_len):
-        """
-        Processes a sequence into a numerical representation.
-        Must be implemented by concrete preprocessing classes.
-        Args:
-            sequence (str): The input biological sequence (RNA or Amino).
-            max_len (int): The maximum length for padding/truncating the processed sequence.
-        Returns:
-            torch.Tensor: The numerical representation of the sequence.
-        """
+    def process(self, *args, **kwargs):
         pass
 
 
-# --- Concrete Preprocessing Classes ---
+
 
 class EmbeddingKMERPreprocessing(BasePreprocessing):
     def __init__(self,filename,n_gram_size=1,pad_token='<PAD>'):
@@ -167,25 +156,86 @@ class OneHotPreprocessing(BasePreprocessing):
             return padded_one_hot.T
 
 
-# --- Modified CustomDataset ---
+# --- Shared Embedding Preprocessing Class ---
+class PreprocessingSharedEmbedding(BasePreprocessing):
+    def __init__(self, rna_file, rbp_file, n_gram_size=1, step_size=1, pad_token='<PAD>'):
+        super().__init__(filename=None, n_gram_size=n_gram_size, pad_token=pad_token)
+        self.step_size = step_size
+        self.rna_file = rna_file
+        self.rbp_file = rbp_file
 
+        tokens = set()
+
+        with open(rna_file, 'r') as f:
+            for line in f:
+                line = line.strip()
+                if n_gram_size > 1:
+                    kmers = self.generate_kmers(line, n_gram_size, step_size)
+                    tokens.update(kmers)
+                else:
+                    tokens.update(list(line))
+
+        with open(rbp_file, 'r') as f:
+            for line in f:
+                tokens.update(list(line.strip()))
+
+        tokens = sorted(list(tokens))
+        self.vocab = {token: i + 1 for i, token in enumerate(tokens)}
+        self.vocab[pad_token] = 0
+
+        self.idx_to_token = {i: token for token, i in self.vocab.items()}
+        self.vocab_size = len(self.vocab)
+
+        print(f"[SharedEmbedding] Vocab size: {self.vocab_size}")
+
+    def generate_kmers(self, seq, k, step):
+        if len(seq) < k:
+            return []
+        return [seq[i:i + k] for i in range(0, len(seq) - k + 1, step)]
+
+    def encode_sequence(self, sequence, use_kmer=True):
+        if use_kmer and self.n_gram_size > 1:
+            tokens = self.generate_kmers(sequence, self.n_gram_size, self.step_size)
+        else:
+            tokens = list(sequence)
+        return [self.vocab.get(tok, self.vocab[self.pad_token]) for tok in tokens]
+
+    def process(self, rna_sequence, rbp_sequence, rna_max_len, rbp_max_len):
+        rna_encoded = self.encode_sequence(rna_sequence, use_kmer=True)
+        rbp_encoded = self.encode_sequence(rbp_sequence, use_kmer=False)
+
+        rna_padded = rna_encoded + [self.vocab[self.pad_token]] * (rna_max_len - len(rna_encoded))
+        rna_padded = rna_padded[:rna_max_len]
+
+        rbp_padded = rbp_encoded + [self.vocab[self.pad_token]] * (rbp_max_len - len(rbp_encoded))
+        rbp_padded = rbp_padded[:rbp_max_len]
+
+        rna_tensor = torch.tensor(rna_padded, dtype=torch.long)
+        rbp_tensor = torch.tensor(rbp_padded, dtype=torch.long)
+
+        rna_mask = (rna_tensor != self.vocab[self.pad_token]).long()
+        rbp_mask = (rbp_tensor != self.vocab[self.pad_token]).long()
+
+        return rna_tensor, rbp_tensor, rna_mask, rbp_mask
+
+# --- Modified CustomDataset Class ---
 class CustomDataset(Dataset):
-
     def __init__(self, rna_file_path, amino_file_path, scores_file_path='',
                  rna_max_len=41, amino_max_len=912, expected_score_dim=200,
-                 preprocessing_rna=None, preprocessing_amino=None):
+                 preprocessing_rna=None, preprocessing_amino=None,score_transform=None):
         self.expected_score_dim = expected_score_dim
         self.rna_file_path = rna_file_path
         self.amino_file_path = amino_file_path
         self.scores_file_path = scores_file_path
         self.rna_max_len = rna_max_len
         self.amino_max_len = amino_max_len
-
         self.preprocessing_rna = preprocessing_rna
         self.preprocessing_amino = preprocessing_amino
+        self.score_transform = score_transform
+
 
         self._load_data()
-        self._check_preprocessing_objects()  # New check
+        self._check_preprocessing_objects()
 
     def _check_preprocessing_objects(self):
         if not isinstance(self.preprocessing_rna, BasePreprocessing):
@@ -203,7 +253,7 @@ class CustomDataset(Dataset):
             self.amino_sequences = [line.strip() for line in f]
 
         self.scores = []
-        self.has_scores = False  # Flag to indicate if scores are available
+        self.has_scores = False
 
         if self.scores_file_path and self.scores_file_path != '':
             print("Loading Scores...")
@@ -212,18 +262,10 @@ class CustomDataset(Dataset):
                 self.has_scores = True
             except FileNotFoundError:
                 print(f"Warning: Scores file not found at {self.scores_file_path}. Proceeding without scores.")
-                self.has_scores = False
             except Exception as e:
                 print(f"Error loading scores file: {e}. Proceeding without scores.")
-                self.has_scores = False
-        else:
-            print("No scores file path provided. Proceeding without scores.")
-            self.has_scores = False
-        # self.scaler = StandardScaler()
-        # self.norm_scores = self.scaler.fit_transform(self.scores)
-        # The number of samples should be based on the RNA sequences as they are mandatory
+
         self.num_samples = len(self.rna_sequences)
-        # Ensure amino sequences are at least as long as RNA sequences, or handle wrapping
         if len(self.amino_sequences) == 0:
             raise ValueError("Amino acid sequences file is empty or not found.")
 
@@ -233,20 +275,27 @@ class CustomDataset(Dataset):
     def __getitem__(self, idx):
         rna_sequence = self.rna_sequences[idx]
         amino_idx = idx % len(self.amino_sequences)
-        amino_sequence = self.amino_sequences[amino_idx]  # Handle if amino is shorter
+        amino_sequence = self.amino_sequences[amino_idx]
 
-        rna_tensor = self.preprocessing_rna.process(rna_sequence, self.rna_max_len)
-        amino_tensor = self.preprocessing_amino.process(amino_sequence, self.amino_max_len)
+        if isinstance(self.preprocessing_rna, PreprocessingSharedEmbedding):
+            rna_tensor, rbp_tensor, rna_mask, rbp_mask = self.preprocessing_rna.process(
+                rna_sequence, amino_sequence, self.rna_max_len, self.amino_max_len
+            )
+        else:
+            rna_tensor = self.preprocessing_rna.process(rna_sequence, self.rna_max_len)
+            rbp_tensor = self.preprocessing_amino.process(amino_sequence, self.amino_max_len)
+            pad_rna = self.preprocessing_rna.vocab[self.preprocessing_rna.pad_token]
+            pad_rbp = self.preprocessing_amino.vocab[self.preprocessing_amino.pad_token]
+            rna_mask = (rna_tensor != pad_rna).long()
+            rbp_mask = (rbp_tensor != pad_rbp).long()
 
         if self.has_scores:
-            if idx == 0:
-                print(f"RNA: {rna_sequence[:30]}...")  # preview
-                print(f"RBP: {amino_sequence[:30]}...")
-                print(f"Score: {self.scores[idx][amino_idx]:.3f}")
-            # score_tensor = torch.tensor(self.norm_scores[idx], dtype=torch.float)
-            score_tensor = torch.tensor(self.scores[idx][amino_idx], dtype=torch.float)
+            raw_score = self.scores[idx][amino_idx]
+            if self.score_transform:
+                normalized_score = self.score_transform.transform([[raw_score]])[0][0]
+            else:
+                normalized_score = raw_score
+            score_tensor = torch.tensor(normalized_score, dtype=torch.float)
         else:
-            # Return a tensor of zeros if no scores are available
             score_tensor = torch.zeros(self.expected_score_dim, dtype=torch.float)
-
-        return (rna_tensor, amino_tensor), score_tensor
+        return (rna_tensor, rbp_tensor, rna_mask, rbp_mask), score_tensor
