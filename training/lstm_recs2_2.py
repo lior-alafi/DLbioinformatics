@@ -7,37 +7,43 @@ import numpy as np
 from sklearn.preprocessing import StandardScaler
 from torch.utils.data import DataLoader
 from tqdm import tqdm
-
+import joblib
 from dataloader4 import CustomDataset, EmbeddingPreprocessing,EmbeddingKMERPreprocessing
 from scipy.stats import pearsonr,spearmanr
 
 from model.lior_model_lstm2 import RecommendationModelV2
-from utils.metrics import metrics
-all_scores = np.loadtxt('data/train_scores.102578.txt', delimiter='\t').flatten().reshape(-1, 1)
-scaler = StandardScaler()
+from utils.metrics import metrics, pearson_evaluation
+from utils.tripletloss import TripletLoss
+
+all_scores = np.loadtxt('../data/train_scores.102578.txt', delimiter='\t').flatten().reshape(-1, 1)
+# scaler = StandardScaler()
+scaler = joblib.load("../model/final/scaler.joblib")
 scaler.fit(all_scores)
+#save scaler
+# joblib.dump(scaler, "model/final/scaler.joblib")
+
 BATCH_SIZE = 128
 # rna_prep_emb_1 = EmbeddingPreprocessing('data/train_rna_seq.50000.txt', n_gram_size=3)
 # amino_prep_emb_1 = EmbeddingPreprocessing('data/train_rbps2_seq.50.txt', n_gram_size=3)
-rna_prep_emb_1 = EmbeddingPreprocessing('data/train_rna_seq.102578.txt', n_gram_size=1)
-amino_prep_emb_1 = EmbeddingPreprocessing('data/train_rbps2_seq.170.txt', n_gram_size=1)
+rna_prep_emb_1 = EmbeddingPreprocessing('../data/train_rna_seq.102578.txt', n_gram_size=1)
+amino_prep_emb_1 = EmbeddingPreprocessing('../data/train_rbps2_seq.170.txt', n_gram_size=1)
 
 # Example usage:
-train_dataset = CustomDataset('data/train_rna_seq.102578.txt',
+train_dataset = CustomDataset('../data/train_rna_seq.102578.txt',
                               'data/train_rbps2_seq.170.txt',
                               'data/train_scores.102578.txt',
                               rna_max_len=41,
                               amino_max_len=912,
                               preprocessing_rna=rna_prep_emb_1,
-                              preprocessing_amino=amino_prep_emb_1,expected_score_dim=170,score_transform=scaler)
-test_dataset = CustomDataset('data/validation_rna_seq.18100.txt',
+                              preprocessing_amino=amino_prep_emb_1, expected_score_dim=170, score_transform=scaler)
+test_dataset = CustomDataset('../data/validation_rna_seq.18100.txt',
                              'data/validation_rbps2_seq.30.txt',
-                            'data/validation_scores.18100.txt',expected_score_dim=30,
+                            'data/validation_scores.18100.txt', expected_score_dim=30,
                              rna_max_len=41,
                              amino_max_len=912,
                              score_transform=scaler,
-preprocessing_rna=rna_prep_emb_1,
-                              preprocessing_amino=amino_prep_emb_1,
+                             preprocessing_rna=rna_prep_emb_1,
+                             preprocessing_amino=amino_prep_emb_1,
 
                              )
 
@@ -48,7 +54,7 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 embed_options = [8,16,32,64,128,256]
 hidden_options = [32,64,128,256]
-lstm_l_options = [1,2,4,8,10]
+lstm_l_options = [1,2,4,8]
 EPOCHS = 30
 # EMBED_DIM = 128
 # HIDDEN_SIZE = 128
@@ -73,12 +79,18 @@ def training_loop(train_loader, device, model, criterion, optimizer, curr_losses
 
 
 
+
+
 for experiment in range(10):
-    EMBED_DIM = random.choice(embed_options)
-    HIDDEN_SIZE = random.choice(hidden_options)
-    LSTM_LAYER =  random.choice(lstm_l_options)
-    Bidirectional= random.choice([True,False])
-    fc= random.choice([[64],[128],[256],[512],[1024],[2048],[4096]])
+    EMBED_DIM = 8 # random.choice(embed_options)
+    HIDDEN_SIZE = 128 # random.choice(hidden_options)
+    LSTM_LAYER = 2 #  random.choice(lstm_l_options)
+    Bidirectional= True # random.choice([True,False])
+    fc= [64]  #random.choice([[64],[128],[256],[512]])
+
+    # alpha = random.choice([0.0,0.25,0.5,0.75,1.0,1.25])
+    # beta = random.choice([0.0,0.25,0.5,0.75,1.0,1.25])
+    # gamma = random.choice([0.0,0.25,0.5,0.75,1.0,1.25])
     bad_pearson_count = 0
     LR= 0.001
 
@@ -92,19 +104,19 @@ for experiment in range(10):
 
 
     # model.load_state_dict(torch.load('model/saved_models/lior_8_7_25.pt'))
-    criterion = nn.MSELoss()
+    criterion = nn.MSELoss() #TripletLoss(alpha=alpha,beta=beta,gamma=gamma)#nn.MSELoss()
     optimizer = optim.Adam(model.parameters(), lr=LR,weight_decay=1e-5)
     scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer=optimizer,mode='min',patience=10)
 
     print(device)
-    description = f'LSTM epochs:{EPOCHS} hidden: {HIDDEN_SIZE}, embed_dim: {EMBED_DIM} Layers: {LSTM_LAYER} bidirectional {Bidirectional} fc {fc}'
+    description = f'LSTM V2 epochs {EPOCHS} hidden {HIDDEN_SIZE} embed_dim {EMBED_DIM} Layers {LSTM_LAYER} bidirectional {Bidirectional} fc {fc} MSE'
     print(description)
 
     losses = []
     val_loss = []
     val_pearson= []
     val_spearman=[]
-
+    best_pearson = 0.0
     for epoch in range(EPOCHS):
         model.train()
         curr_losses = []
@@ -138,33 +150,14 @@ for experiment in range(10):
             val_loss.append(val_loss_epoch)
             scheduler.step(val_loss_epoch)
 
-            y_orig = np.array(y_orig, dtype=np.float32).reshape(-1, 1)
-            y_hats = np.array(y_hats, dtype=np.float32).reshape(-1, 1)
-            print(f'y_true {y_orig.shape} y_hat {y_hats.shape}')
-
-            # Unnormalize
-            y_orig_real = scaler.inverse_transform(y_orig).flatten()
-            y_hats_real = scaler.inverse_transform(y_hats).flatten()
-            assert not np.isnan(y_hats_real).any(), "y_hats_real contains NaN"
-            assert not np.isinf(y_hats_real).any(), "y_hats contains inf"
-
-            std_y_hat = np.std(y_hats_real)
-            std_y_true = np.std(y_orig_real)
-
-            if std_y_hat < 1e-6 or std_y_true < 1e-6:
-                print(
-                    f"⚠️ Warning (epoch {epoch + 1}): std is near-zero (y_hat: {std_y_hat:.6f}, y_true: {std_y_true:.6f}) – skipping Pearson.")
-                pear_corr, spear_corr = 0.0, 0.0
-                bad_pearson_count += 1
-            else:
-                pear_corr, _ = pearsonr(y_orig_real, y_hats_real)
-                spear_corr, _ = spearmanr(y_orig_real, y_hats_real)
-                bad_pearson_count = 0  # reset if Pearson is valid
-
+            bad_pearson_count,pear_corr,spear_corr = pearson_evaluation(y_orig,y_hats, bad_pearson_count,epoch,scaler)
             val_pearson.append(pear_corr)
             val_spearman.append(spear_corr)
-
             print(f"Epoch [{epoch + 1}/{EPOCHS}], train_Loss: {losses[-1]:.4f}, val_loss: {val_loss_epoch:.4f}, pearson: {val_pearson[-1]:.4f}, spearman: {val_spearman[-1]:.4f}")
+            if best_pearson < val_pearson[-1]:
+                best_pearson = val_pearson[-1]
+                print(f'saving model')
+                torch.save(model.state_dict(), f'model/final/{description.replace(' ','_')}__pearson_{val_pearson[-1]}.pt')
             if bad_pearson_count > 0:
                 print(f"⚠️ bad_pearson_count = {bad_pearson_count} (will stop at 2)")
 

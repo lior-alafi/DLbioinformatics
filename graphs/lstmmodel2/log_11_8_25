@@ -1,0 +1,128 @@
+C:\Users\liora\AppData\Local\Programs\Python\Python312\python.exe "C:\Users\liora\Documents\לימודים\ביולוגיה וDL\proj\DLbioinformatics\transformer_training.py"
+[SharedEmbedding] Vocab size: 22
+Loading RNA sequences...
+Loading Amino acid sequences...
+Loading Scores...
+Loading RNA sequences...
+Loading Amino acid sequences...
+Loading Scores...
+C:\Users\liora\AppData\Local\Programs\Python\Python312\Lib\site-packages\torch\nn\modules\transformer.py:385: UserWarning: enable_nested_tensor is True, but self.use_nested_tensor is False because encoder_layer.self_attn.num_heads is odd
+  warnings.warn(
+0it [00:00, ?it/s]cuda
+Trasformer encoder epochs15 hidden 32 embed_dim 128 Layers 2 heads 1 loss(0.1, 0.0, 0.5)
+802it [01:34,  8.47it/s]
+142it [00:06, 23.45it/s]
+[diag e1] var(y)=1.5501 var(ŷ)=0.3817 mean(ŷ)=-0.2452
+Epoch [1/15], train_Loss: 0.2940, val_loss: 0.5975, pearson: 0.0752, spearman: 0.2162
+802it [01:35,  8.40it/s]
+142it [00:06, 22.77it/s]
+0it [00:00, ?it/s][diag e2] var(y)=1.5501 var(ŷ)=0.3536 mean(ŷ)=0.0059
+Epoch [2/15], train_Loss: 0.2332, val_loss: 0.6284, pearson: 0.0222, spearman: 0.1253
+802it [01:37,  8.20it/s]
+142it [00:06, 22.36it/s]
+0it [00:00, ?it/s][diag e3] var(y)=1.5501 var(ŷ)=0.3284 mean(ŷ)=-0.0358
+Epoch [3/15], train_Loss: 0.2271, val_loss: 0.6502, pearson: -0.0211, spearman: 0.1003
+802it [02:36,  5.14it/s]
+142it [00:21,  6.57it/s]
+[diag e4] var(y)=1.5501 var(ŷ)=0.3585 mean(ŷ)=-0.2239
+Epoch [4/15], train_Loss: 0.2237, val_loss: 0.6606, pearson: -0.0374, spearman: 0.0631
+802it [02:52,  4.65it/s]
+142it [00:20,  6.91it/s]
+[diag e5] var(y)=1.5501 var(ŷ)=0.2520 mean(ŷ)=-0.0087
+0it [00:00, ?it/s]Epoch [5/15], train_Loss: 0.2213, val_loss: 0.6139, pearson: 0.0432, spearman: 0.1414
+802it [02:53,  4.62it/s]
+142it [00:21,  6.67it/s]
+[diag e6] var(y)=1.5501 var(ŷ)=0.3312 mean(ŷ)=-0.0095
+0it [00:00, ?it/s]Epoch [6/15], train_Loss: 0.2196, val_loss: 0.6448, pearson: -0.0087, spearman: 0.0786
+802it [02:56,  4.54it/s]
+142it [00:20,  6.98it/s]
+[diag e7] var(y)=1.5501 var(ŷ)=0.3977 mean(ŷ)=0.0129
+0it [00:00, ?it/s]Epoch [7/15], train_Loss: 0.2173, val_loss: 0.6279, pearson: 0.0251, spearman: 0.1124
+802it [02:53,  4.63it/s]
+142it [00:20,  6.89it/s]
+[diag e8] var(y)=1.5501 var(ŷ)=0.2961 mean(ŷ)=-0.1954
+0it [00:00, ?it/s]Epoch [8/15], train_Loss: 0.2161, val_loss: 0.6589, pearson: -0.0385, spearman: 0.0465
+802it [02:56,  4.54it/s]
+142it [00:22,  6.38it/s]
+[diag e9] var(y)=1.5501 var(ŷ)=0.3739 mean(ŷ)=0.0583
+0it [00:00, ?it/s]Epoch [9/15], train_Loss: 0.2145, val_loss: 0.6192, pearson: 0.0419, spearman: 0.1175
+802it [02:54,  4.60it/s]
+142it [00:21,  6.74it/s]
+[diag e10] var(y)=1.5501 var(ŷ)=0.3146 mean(ŷ)=0.0160
+0it [00:00, ?it/s]Epoch [10/15], train_Loss: 0.2122, val_loss: 0.6389, pearson: 0.0005, spearman: 0.0776
+802it [03:00,  4.43it/s]
+142it [00:21,  6.53it/s]
+[diag e11] var(y)=1.5501 var(ŷ)=0.3378 mean(ŷ)=0.0751
+Epoch [11/15], train_Loss: 0.2115, val_loss: 0.6418, pearson: -0.0001, spearman: 0.0541
+802it [02:58,  4.50it/s]
+142it [00:21,  6.50it/s]
+0it [00:00, ?it/s][diag e12] var(y)=1.5501 var(ŷ)=0.3602 mean(ŷ)=0.3131
+Epoch [12/15], train_Loss: 0.2096, val_loss: 0.6332, pearson: 0.0279, spearman: 0.0860
+802it [02:57,  4.51it/s]
+142it [00:22,  6.45it/s]
+[diag e13] var(y)=1.5501 var(ŷ)=0.3378 mean(ŷ)=0.0558
+0it [00:00, ?it/s]Epoch [13/15], train_Loss: 0.2041, val_loss: 0.6362, pearson: 0.0094, spearman: 0.0533
+802it [02:56,  4.54it/s]
+142it [00:20,  6.88it/s]
+[diag e14] var(y)=1.5501 var(ŷ)=0.3568 mean(ŷ)=0.0328
+0it [00:00, ?it/s]Epoch [14/15], train_Loss: 0.2026, val_loss: 0.6352, pearson: 0.0115, spearman: 0.0649
+802it [02:55,  4.58it/s]
+142it [00:21,  6.68it/s]
+[diag e15] var(y)=1.5501 var(ŷ)=0.3488 mean(ŷ)=0.0678
+Epoch [15/15], train_Loss: 0.2023, val_loss: 0.6355, pearson: 0.0111, spearman: 0.0657
+[0.2939705690949635, 0.2331745532385429, 0.2271147908879783, 0.22365809430802552, 0.22128597024521626, 0.2195649118792089, 0.21733650749089414, 0.21611840262117232, 0.21452266368039527, 0.2121876635196203, 0.2114636918850373, 0.20957874826287987, 0.20405949913243998, 0.20259879997692204, 0.20227549110824924]
+Trasformer encoder epochs15 hidden 32 embed_dim 128 Layers 2 heads 1 loss(0.1, 0.0, 0.5)
+Saved training metrics to: training_metrics_Trasformer_encoder_epochs15_hidden_32_embed_dim_128_Layers_2_heads_1_loss(0.1,_0.0,_0.5)_2025-08-11_13-36.png
+[Transformer_0_2025-08-11_12-52-34] Saved best model → experiments_out\Transformer_0_2025-08-11_12-52-34_BEST.pt
+[Transformer_0_2025-08-11_12-52-34] Saved per-epoch CSV → experiments_out\Transformer_0_2025-08-11_12-52-34_history.csv
+[Transformer_0_2025-08-11_12-52-34] Appended to summary CSV → experiments_out\summary_all_experiments.csv
+[Transformer_0_2025-08-11_12-52-34] Saved plot → experiments_out\Transformer_0_2025-08-11_12-52-34_plot.png
+cuda
+Trasformer encoder epochs15 hidden 128 embed_dim 256 Layers 8 heads 4 loss(0.1, 0.1, 0.5)
+802it [14:05,  1.05s/it]
+0it [00:00, ?it/s]C:\Users\liora\AppData\Local\Programs\Python\Python312\Lib\site-packages\torch\nn\modules\transformer.py:508: UserWarning: The PyTorch API of nested tensors is in prototype stage and will change in the near future. We recommend specifying layout=torch.jagged when constructing a nested tensor, as this layout receives active development, has better operator coverage, and works with torch.compile. (Triggered internally at C:\actions-runner\_work\pytorch\pytorch\pytorch\aten\src\ATen\NestedTensorImpl.cpp:182.)
+  output = torch._nested_tensor_from_mask(
+142it [00:25,  5.67it/s]
+[diag e1] var(y)=1.5501 var(ŷ)=0.1989 mean(ŷ)=0.5141
+0it [00:00, ?it/s]Epoch [1/15], train_Loss: 0.3063, val_loss: 0.7453, pearson: 0.0286, spearman: -0.0055
+802it [14:08,  1.06s/it]
+142it [00:27,  5.26it/s]
+[diag e2] var(y)=1.5501 var(ŷ)=0.1733 mean(ŷ)=0.3074
+Epoch [2/15], train_Loss: 0.2643, val_loss: 0.7971, pearson: -0.0751, spearman: -0.0467
+802it [14:09,  1.06s/it]
+142it [00:27,  5.22it/s]
+[diag e3] var(y)=1.5501 var(ŷ)=0.2907 mean(ŷ)=0.1364
+0it [00:00, ?it/s]Epoch [3/15], train_Loss: 0.2608, val_loss: 0.8151, pearson: -0.1104, spearman: -0.0822
+802it [20:11,  1.51s/it]
+142it [00:29,  4.83it/s]
+[diag e4] var(y)=1.5501 var(ŷ)=0.2805 mean(ŷ)=-0.0896
+0it [00:00, ?it/s]Epoch [4/15], train_Loss: 0.2580, val_loss: 0.7877, pearson: -0.0792, spearman: -0.0546
+802it [21:55,  1.64s/it]
+142it [00:28,  5.05it/s]
+[diag e5] var(y)=1.5501 var(ŷ)=0.1775 mean(ŷ)=-0.0943
+Epoch [5/15], train_Loss: 0.2536, val_loss: 0.6972, pearson: 0.0539, spearman: 0.0841
+802it [53:57,  4.04s/it]
+142it [00:08, 16.59it/s]
+0it [00:00, ?it/s][diag e6] var(y)=1.5501 var(ŷ)=0.1519 mean(ŷ)=-0.0664
+Epoch [6/15], train_Loss: 0.2481, val_loss: 0.7516, pearson: -0.0293, spearman: 0.0119
+802it [13:18,  1.00it/s]
+142it [00:08, 16.18it/s]
+[diag e7] var(y)=1.5501 var(ŷ)=0.2076 mean(ŷ)=-0.1688
+Epoch [7/15], train_Loss: 0.2462, val_loss: 0.7716, pearson: -0.0602, spearman: -0.0218
+802it [13:20,  1.00it/s]
+142it [00:08, 16.53it/s]
+0it [00:00, ?it/s][diag e8] var(y)=1.5501 var(ŷ)=0.2280 mean(ŷ)=-0.2579
+Epoch [8/15], train_Loss: 0.2431, val_loss: 0.7216, pearson: 0.0172, spearman: 0.0840
+802it [16:36,  1.24s/it]
+142it [00:11, 12.46it/s]
+[diag e9] var(y)=1.5501 var(ŷ)=0.1820 mean(ŷ)=-0.1268
+Epoch [9/15], train_Loss: 0.2404, val_loss: 0.7294, pearson: 0.0058, spearman: 0.0329
+802it [18:41,  1.40s/it]
+142it [00:11, 12.46it/s]
+0it [00:00, ?it/s][diag e10] var(y)=1.5501 var(ŷ)=0.3812 mean(ŷ)=-0.0936
+Epoch [10/15], train_Loss: 0.2371, val_loss: 0.8097, pearson: -0.1082, spearman: -0.0652
+802it [18:40,  1.40s/it]
+142it [00:11, 12.49it/s]
+[diag e11] var(y)=1.5501 var(ŷ)=0.2451 mean(ŷ)=0.1090
+Epoch [11/15], train_Loss: 0.2347, val_loss: 0.8366, pearson: -0.1481, spearman: -0.1505
+535it [39:04,  1.90s/it]

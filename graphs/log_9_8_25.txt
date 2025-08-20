@@ -1,0 +1,387 @@
+C:\Users\liora\AppData\Local\Programs\Python\Python312\python.exe "C:\Users\liora\Documents\לימודים\ביולוגיה וDL\proj\DLbioinformatics\transformer_training.py"
+[SharedEmbedding] Vocab size: 85
+Loading RNA sequences...
+Loading Amino acid sequences...
+Loading Scores...
+Loading RNA sequences...
+Loading Amino acid sequences...
+Loading Scores...
+cuda
+Trasformer encoder epochs30 hidden 64 embed_dim 64 Layers 2 heads 4 loss[1.0, 0.0, 1.0]
+802it [01:58,  6.80it/s]
+0it [00:00, ?it/s]C:\Users\liora\AppData\Local\Programs\Python\Python312\Lib\site-packages\torch\nn\modules\transformer.py:508: UserWarning: The PyTorch API of nested tensors is in prototype stage and will change in the near future. We recommend specifying layout=torch.jagged when constructing a nested tensor, as this layout receives active development, has better operator coverage, and works with torch.compile. (Triggered internally at C:\actions-runner\_work\pytorch\pytorch\pytorch\aten\src\ATen\NestedTensorImpl.cpp:182.)
+  output = torch._nested_tensor_from_mask(
+142it [00:03, 36.02it/s]
+0it [00:00, ?it/s]y_true (18100, 1) y_hat (18100, 1)
+Epoch [1/30], train_Loss: 1.1671, val_loss: 2.6102, pearson: -0.0802, spearman: 0.0293
+802it [01:58,  6.75it/s]
+142it [00:04, 35.34it/s]
+y_true (18100, 1) y_hat (18100, 1)
+Epoch [2/30], train_Loss: 1.0209, val_loss: 2.5512, pearson: -0.0966, spearman: 0.0228
+802it [02:42,  4.92it/s]
+142it [00:21,  6.57it/s]
+y_true (18100, 1) y_hat (18100, 1)
+0it [00:00, ?it/s]Epoch [3/30], train_Loss: 0.9984, val_loss: 2.4056, pearson: -0.0255, spearman: 0.0784
+802it [03:07,  4.28it/s]
+142it [00:20,  6.84it/s]
+y_true (18100, 1) y_hat (18100, 1)
+0it [00:00, ?it/s]Epoch [4/30], train_Loss: 0.9791, val_loss: 2.3979, pearson: -0.0365, spearman: 0.0485
+802it [03:08,  4.24it/s]
+142it [00:20,  7.02it/s]
+y_true (18100, 1) y_hat (18100, 1)
+0it [00:00, ?it/s]Epoch [5/30], train_Loss: 0.9673, val_loss: 2.3659, pearson: -0.0098, spearman: 0.0840
+802it [03:02,  4.39it/s]
+142it [00:20,  7.06it/s]
+y_true (18100, 1) y_hat (18100, 1)
+Epoch [6/30], train_Loss: 0.9537, val_loss: 2.4279, pearson: -0.0350, spearman: 0.0579
+802it [02:48,  4.76it/s]
+142it [00:20,  6.86it/s]
+y_true (18100, 1) y_hat (18100, 1)
+0it [00:00, ?it/s]Epoch [7/30], train_Loss: 0.9423, val_loss: 2.3626, pearson: -0.0290, spearman: 0.0554
+802it [03:04,  4.34it/s]
+142it [00:19,  7.19it/s]
+y_true (18100, 1) y_hat (18100, 1)
+0it [00:00, ?it/s]Epoch [8/30], train_Loss: 0.9301, val_loss: 2.3576, pearson: -0.0258, spearman: 0.0451
+802it [03:07,  4.27it/s]
+142it [00:21,  6.72it/s]
+y_true (18100, 1) y_hat (18100, 1)
+0it [00:00, ?it/s]Epoch [9/30], train_Loss: 0.9228, val_loss: 2.4272, pearson: -0.0736, spearman: 0.0094
+802it [02:39,  5.03it/s]
+142it [00:03, 35.85it/s]
+0it [00:00, ?it/s]y_true (18100, 1) y_hat (18100, 1)
+Epoch [10/30], train_Loss: 0.9111, val_loss: 2.3192, pearson: 0.0001, spearman: 0.0873
+802it [01:58,  6.76it/s]
+142it [00:04, 34.58it/s]
+0it [00:00, ?it/s]y_true (18100, 1) y_hat (18100, 1)
+Epoch [11/30], train_Loss: 0.9032, val_loss: 2.3976, pearson: -0.0339, spearman: 0.0388
+802it [01:59,  6.69it/s]
+142it [00:04, 34.24it/s]
+y_true (18100, 1) y_hat (18100, 1)
+Epoch [12/30], train_Loss: 0.8939, val_loss: 2.3207, pearson: 0.0119, spearman: 0.0738
+802it [02:02,  6.57it/s]
+142it [00:04, 33.75it/s]
+0it [00:00, ?it/s]y_true (18100, 1) y_hat (18100, 1)
+Epoch [13/30], train_Loss: 0.8870, val_loss: 2.4271, pearson: -0.0523, spearman: 0.0270
+802it [02:03,  6.50it/s]
+142it [00:04, 34.22it/s]
+y_true (18100, 1) y_hat (18100, 1)
+Epoch [14/30], train_Loss: 0.8788, val_loss: 2.3255, pearson: -0.0068, spearman: 0.0692
+802it [02:04,  6.46it/s]
+142it [00:04, 33.86it/s]
+0it [00:00, ?it/s]y_true (18100, 1) y_hat (18100, 1)
+Epoch [15/30], train_Loss: 0.8757, val_loss: 2.2506, pearson: 0.0562, spearman: 0.0885
+802it [02:04,  6.44it/s]
+142it [00:04, 34.34it/s]
+0it [00:00, ?it/s]y_true (18100, 1) y_hat (18100, 1)
+Epoch [16/30], train_Loss: 0.8714, val_loss: 2.3376, pearson: -0.0275, spearman: 0.0525
+802it [02:04,  6.43it/s]
+142it [00:04, 34.55it/s]
+y_true (18100, 1) y_hat (18100, 1)
+Epoch [17/30], train_Loss: 0.8661, val_loss: 2.3356, pearson: -0.0033, spearman: 0.0319
+802it [02:04,  6.43it/s]
+142it [00:04, 33.55it/s]
+0it [00:00, ?it/s]y_true (18100, 1) y_hat (18100, 1)
+Epoch [18/30], train_Loss: 0.8594, val_loss: 2.2693, pearson: 0.0405, spearman: 0.1098
+802it [02:05,  6.41it/s]
+142it [00:04, 34.26it/s]
+y_true (18100, 1) y_hat (18100, 1)
+Epoch [19/30], train_Loss: 0.8552, val_loss: 2.2779, pearson: 0.0310, spearman: 0.0788
+802it [02:27,  5.44it/s]
+142it [00:19,  7.11it/s]
+y_true (18100, 1) y_hat (18100, 1)
+0it [00:00, ?it/s]Epoch [20/30], train_Loss: 0.8524, val_loss: 2.3040, pearson: 0.0051, spearman: 0.0535
+802it [02:03,  6.48it/s]
+142it [00:04, 33.36it/s]
+y_true (18100, 1) y_hat (18100, 1)
+Epoch [21/30], train_Loss: 0.8494, val_loss: 2.2853, pearson: 0.0329, spearman: 0.0681
+802it [02:04,  6.43it/s]
+142it [00:04, 32.88it/s]
+y_true (18100, 1) y_hat (18100, 1)
+Epoch [22/30], train_Loss: 0.8414, val_loss: 2.3502, pearson: -0.0027, spearman: 0.0227
+802it [02:05,  6.40it/s]
+142it [00:04, 33.88it/s]
+0it [00:00, ?it/s]y_true (18100, 1) y_hat (18100, 1)
+Epoch [23/30], train_Loss: 0.8411, val_loss: 2.2909, pearson: 0.0230, spearman: 0.0630
+802it [02:05,  6.39it/s]
+142it [00:04, 34.51it/s]
+0it [00:00, ?it/s]y_true (18100, 1) y_hat (18100, 1)
+Epoch [24/30], train_Loss: 0.8353, val_loss: 2.3490, pearson: -0.0106, spearman: 0.0367
+802it [02:05,  6.39it/s]
+142it [00:04, 34.23it/s]
+y_true (18100, 1) y_hat (18100, 1)
+Epoch [25/30], train_Loss: 0.8318, val_loss: 2.2641, pearson: 0.0392, spearman: 0.0885
+802it [02:05,  6.39it/s]
+142it [00:04, 33.97it/s]
+0it [00:00, ?it/s]y_true (18100, 1) y_hat (18100, 1)
+Epoch [26/30], train_Loss: 0.8303, val_loss: 2.2633, pearson: 0.0428, spearman: 0.1116
+802it [02:05,  6.37it/s]
+142it [00:04, 33.32it/s]
+0it [00:00, ?it/s]y_true (18100, 1) y_hat (18100, 1)
+Epoch [27/30], train_Loss: 0.7913, val_loss: 2.2421, pearson: 0.0558, spearman: 0.1287
+802it [02:05,  6.38it/s]
+142it [00:04, 33.48it/s]
+0it [00:00, ?it/s]y_true (18100, 1) y_hat (18100, 1)
+Epoch [28/30], train_Loss: 0.7815, val_loss: 2.2552, pearson: 0.0473, spearman: 0.1003
+802it [02:05,  6.38it/s]
+142it [00:04, 34.02it/s]
+0it [00:00, ?it/s]y_true (18100, 1) y_hat (18100, 1)
+Epoch [29/30], train_Loss: 0.7759, val_loss: 2.2516, pearson: 0.0509, spearman: 0.1005
+802it [02:05,  6.37it/s]
+142it [00:04, 33.85it/s]
+y_true (18100, 1) y_hat (18100, 1)
+Epoch [30/30], train_Loss: 0.7731, val_loss: 2.2708, pearson: 0.0365, spearman: 0.0808
+[1.1671312526425817, 1.020914789001246, 0.9984494514596135, 0.9791028467645669, 0.9672605970553924, 0.9536562550097629, 0.9422663284507475, 0.9301463333597207, 0.9228290758673984, 0.9110870138368107, 0.9031835187997604, 0.8939167435032471, 0.8870163448433627, 0.8788036311653784, 0.8756624616292349, 0.871356438297286, 0.8661292461385751, 0.8593863604074702, 0.8551628051553284, 0.8524449050723764, 0.8493731555498746, 0.8414017057180999, 0.8410874874960454, 0.8353164170745603, 0.8317521223403569, 0.830347940585857, 0.791321363012095, 0.7814623736904149, 0.7758983955567614, 0.7730992426747396]
+Trasformer encoder epochs30 hidden 64 embed_dim 64 Layers 2 heads 4 loss[1.0, 0.0, 1.0]
+Saved training metrics to: training_metrics_Trasformer_encoder_epochs30_hidden_64_embed_dim_64_Layers_2_heads_4_loss[1.0,_0.0,_1.0]_2025-08-09_02-47.png
+cuda
+Trasformer encoder epochs30 hidden 64 embed_dim 64 Layers 2 heads 4 loss[1.0, 0.0, 1.0]
+802it [02:05,  6.37it/s]
+142it [00:04, 32.87it/s]
+0it [00:00, ?it/s]y_true (18100, 1) y_hat (18100, 1)
+Epoch [1/30], train_Loss: 1.1672, val_loss: 2.5713, pearson: -0.0363, spearman: 0.0479
+802it [02:06,  6.36it/s]
+142it [00:04, 32.96it/s]
+y_true (18100, 1) y_hat (18100, 1)
+Epoch [2/30], train_Loss: 1.0242, val_loss: 2.5184, pearson: -0.0366, spearman: 0.0425
+802it [02:05,  6.38it/s]
+142it [00:04, 32.57it/s]
+0it [00:00, ?it/s]y_true (18100, 1) y_hat (18100, 1)
+Epoch [3/30], train_Loss: 1.0011, val_loss: 2.3779, pearson: 0.0391, spearman: 0.1138
+802it [02:06,  6.36it/s]
+142it [00:04, 33.93it/s]
+0it [00:00, ?it/s]y_true (18100, 1) y_hat (18100, 1)
+Epoch [4/30], train_Loss: 0.9859, val_loss: 2.3171, pearson: 0.0276, spearman: 0.0964
+802it [02:05,  6.37it/s]
+142it [00:04, 33.75it/s]
+0it [00:00, ?it/s]y_true (18100, 1) y_hat (18100, 1)
+Epoch [5/30], train_Loss: 0.9669, val_loss: 2.3523, pearson: 0.0150, spearman: 0.0953
+802it [02:06,  6.35it/s]
+142it [00:04, 33.95it/s]
+0it [00:00, ?it/s]y_true (18100, 1) y_hat (18100, 1)
+Epoch [6/30], train_Loss: 0.9509, val_loss: 2.3879, pearson: -0.0161, spearman: 0.0906
+802it [02:06,  6.34it/s]
+142it [00:04, 34.04it/s]
+0it [00:00, ?it/s]y_true (18100, 1) y_hat (18100, 1)
+Epoch [7/30], train_Loss: 0.9380, val_loss: 2.1717, pearson: 0.1097, spearman: 0.1931
+802it [02:06,  6.34it/s]
+142it [00:04, 33.92it/s]
+0it [00:00, ?it/s]y_true (18100, 1) y_hat (18100, 1)
+Epoch [8/30], train_Loss: 0.9302, val_loss: 2.1951, pearson: 0.1028, spearman: 0.1950
+802it [02:06,  6.34it/s]
+142it [00:04, 33.48it/s]
+0it [00:00, ?it/s]y_true (18100, 1) y_hat (18100, 1)
+Epoch [9/30], train_Loss: 0.9167, val_loss: 2.3335, pearson: 0.0106, spearman: 0.1122
+802it [02:06,  6.34it/s]
+142it [00:04, 33.92it/s]
+0it [00:00, ?it/s]y_true (18100, 1) y_hat (18100, 1)
+Epoch [10/30], train_Loss: 0.9088, val_loss: 2.2251, pearson: 0.0874, spearman: 0.1914
+802it [02:06,  6.33it/s]
+142it [00:04, 33.21it/s]
+0it [00:00, ?it/s]y_true (18100, 1) y_hat (18100, 1)
+Epoch [11/30], train_Loss: 0.9034, val_loss: 2.2547, pearson: 0.0546, spearman: 0.1671
+802it [02:06,  6.33it/s]
+142it [00:04, 32.28it/s]
+0it [00:00, ?it/s]y_true (18100, 1) y_hat (18100, 1)
+Epoch [12/30], train_Loss: 0.8976, val_loss: 2.2332, pearson: 0.0792, spearman: 0.1819
+802it [02:06,  6.32it/s]
+142it [00:04, 33.79it/s]
+0it [00:00, ?it/s]y_true (18100, 1) y_hat (18100, 1)
+Epoch [13/30], train_Loss: 0.8882, val_loss: 2.3184, pearson: 0.0253, spearman: 0.1178
+802it [02:14,  5.94it/s]
+142it [00:04, 34.97it/s]
+0it [00:00, ?it/s]y_true (18100, 1) y_hat (18100, 1)
+Epoch [14/30], train_Loss: 0.8811, val_loss: 2.3535, pearson: 0.0166, spearman: 0.1192
+802it [02:44,  4.89it/s]
+142it [00:03, 37.19it/s]
+0it [00:00, ?it/s]y_true (18100, 1) y_hat (18100, 1)
+Epoch [15/30], train_Loss: 0.8750, val_loss: 2.2898, pearson: 0.0279, spearman: 0.1317
+802it [02:42,  4.94it/s]
+142it [00:03, 37.01it/s]
+y_true (18100, 1) y_hat (18100, 1)
+Epoch [16/30], train_Loss: 0.8676, val_loss: 2.3232, pearson: 0.0433, spearman: 0.1476
+802it [02:42,  4.95it/s]
+142it [00:03, 37.44it/s]
+0it [00:00, ?it/s]y_true (18100, 1) y_hat (18100, 1)
+Epoch [17/30], train_Loss: 0.8619, val_loss: 2.3457, pearson: 0.0080, spearman: 0.1159
+802it [02:41,  4.97it/s]
+142it [00:03, 36.33it/s]
+0it [00:00, ?it/s]y_true (18100, 1) y_hat (18100, 1)
+Epoch [18/30], train_Loss: 0.8577, val_loss: 2.3803, pearson: -0.0187, spearman: 0.0839
+802it [02:40,  4.98it/s]
+142it [00:03, 35.50it/s]
+0it [00:00, ?it/s]y_true (18100, 1) y_hat (18100, 1)
+Epoch [19/30], train_Loss: 0.8201, val_loss: 2.3480, pearson: 0.0040, spearman: 0.1177
+802it [02:40,  4.99it/s]
+142it [00:03, 37.31it/s]
+0it [00:00, ?it/s]y_true (18100, 1) y_hat (18100, 1)
+Epoch [20/30], train_Loss: 0.8081, val_loss: 2.3442, pearson: 0.0106, spearman: 0.1210
+802it [02:40,  4.99it/s]
+142it [00:03, 36.62it/s]
+0it [00:00, ?it/s]y_true (18100, 1) y_hat (18100, 1)
+Epoch [21/30], train_Loss: 0.8043, val_loss: 2.3132, pearson: 0.0287, spearman: 0.1386
+802it [02:40,  4.99it/s]
+142it [00:03, 36.56it/s]
+0it [00:00, ?it/s]y_true (18100, 1) y_hat (18100, 1)
+Epoch [22/30], train_Loss: 0.8000, val_loss: 2.3310, pearson: 0.0123, spearman: 0.1285
+802it [02:40,  4.99it/s]
+142it [00:03, 35.87it/s]
+0it [00:00, ?it/s]y_true (18100, 1) y_hat (18100, 1)
+Epoch [23/30], train_Loss: 0.7981, val_loss: 2.3160, pearson: 0.0269, spearman: 0.1412
+802it [02:40,  4.98it/s]
+142it [00:03, 37.74it/s]
+0it [00:00, ?it/s]y_true (18100, 1) y_hat (18100, 1)
+Epoch [24/30], train_Loss: 0.7951, val_loss: 2.3414, pearson: 0.0127, spearman: 0.1284
+802it [02:40,  4.98it/s]
+142it [00:03, 37.26it/s]
+0it [00:00, ?it/s]y_true (18100, 1) y_hat (18100, 1)
+Epoch [25/30], train_Loss: 0.7923, val_loss: 2.3464, pearson: 0.0087, spearman: 0.1252
+802it [02:40,  4.99it/s]
+142it [00:03, 36.85it/s]
+0it [00:00, ?it/s]y_true (18100, 1) y_hat (18100, 1)
+Epoch [26/30], train_Loss: 0.7918, val_loss: 2.3153, pearson: 0.0254, spearman: 0.1423
+802it [02:40,  4.99it/s]
+142it [00:03, 36.73it/s]
+0it [00:00, ?it/s]y_true (18100, 1) y_hat (18100, 1)
+Epoch [27/30], train_Loss: 0.7883, val_loss: 2.3166, pearson: 0.0265, spearman: 0.1409
+802it [02:40,  4.98it/s]
+142it [00:03, 36.47it/s]
+y_true (18100, 1) y_hat (18100, 1)
+Epoch [28/30], train_Loss: 0.7888, val_loss: 2.3052, pearson: 0.0317, spearman: 0.1520
+802it [02:41,  4.98it/s]
+142it [00:03, 37.56it/s]
+y_true (18100, 1) y_hat (18100, 1)
+Epoch [29/30], train_Loss: 0.7853, val_loss: 2.2883, pearson: 0.0428, spearman: 0.1563
+802it [02:40,  4.98it/s]
+142it [00:03, 36.78it/s]
+y_true (18100, 1) y_hat (18100, 1)
+Epoch [30/30], train_Loss: 0.7797, val_loss: 2.3137, pearson: 0.0322, spearman: 0.1502
+[1.1672008851371203, 1.024199865925639, 1.0010521368046947, 0.9859294360712579, 0.9669209867344235, 0.9508735498139389, 0.9379739689262133, 0.9302109608477785, 0.9166641370613974, 0.9088111529475138, 0.9033987367539632, 0.8976093308438089, 0.8881804929707116, 0.8811125981986077, 0.8749589136711082, 0.8676487155388716, 0.8618698983715657, 0.8577484753066464, 0.8201192207913149, 0.8081481659650208, 0.8042811567052047, 0.8000147887075928, 0.7980672518660006, 0.7950739224355416, 0.7922951738138746, 0.791836192668822, 0.7883452425276549, 0.7887586435846557, 0.7853224342897943, 0.7797279133463738]
+Trasformer encoder epochs30 hidden 64 embed_dim 64 Layers 2 heads 4 loss[1.0, 0.0, 1.0]
+Saved training metrics to: training_metrics_Trasformer_encoder_epochs30_hidden_64_embed_dim_64_Layers_2_heads_4_loss[1.0,_0.0,_1.0]_2025-08-09_04-02.png
+cuda
+Trasformer encoder epochs30 hidden 64 embed_dim 64 Layers 2 heads 4 loss[1.0, 0.0, 1.0]
+802it [02:40,  4.99it/s]
+142it [00:03, 37.24it/s]
+0it [00:00, ?it/s]y_true (18100, 1) y_hat (18100, 1)
+Epoch [1/30], train_Loss: 1.1531, val_loss: 2.2954, pearson: 0.0767, spearman: 0.1578
+802it [02:40,  4.98it/s]
+142it [00:03, 36.29it/s]
+0it [00:00, ?it/s]y_true (18100, 1) y_hat (18100, 1)
+Epoch [2/30], train_Loss: 1.0260, val_loss: 2.2653, pearson: 0.0877, spearman: 0.1849
+802it [02:37,  5.10it/s]
+142it [00:03, 36.97it/s]
+0it [00:00, ?it/s]y_true (18100, 1) y_hat (18100, 1)
+Epoch [3/30], train_Loss: 1.0027, val_loss: 2.2184, pearson: 0.0992, spearman: 0.1766
+802it [02:40,  4.98it/s]
+142it [00:03, 36.14it/s]
+0it [00:00, ?it/s]y_true (18100, 1) y_hat (18100, 1)
+Epoch [4/30], train_Loss: 0.9831, val_loss: 2.2975, pearson: 0.0623, spearman: 0.1756
+802it [02:41,  4.98it/s]
+142it [00:03, 37.34it/s]
+0it [00:00, ?it/s]y_true (18100, 1) y_hat (18100, 1)
+Epoch [5/30], train_Loss: 0.9642, val_loss: 2.3255, pearson: 0.0677, spearman: 0.1726
+802it [02:40,  4.99it/s]
+142it [00:03, 37.17it/s]
+0it [00:00, ?it/s]y_true (18100, 1) y_hat (18100, 1)
+Epoch [6/30], train_Loss: 0.9465, val_loss: 2.2021, pearson: 0.1148, spearman: 0.2037
+802it [02:40,  4.99it/s]
+142it [00:03, 37.11it/s]
+y_true (18100, 1) y_hat (18100, 1)
+Epoch [7/30], train_Loss: 0.9376, val_loss: 2.3884, pearson: 0.0023, spearman: 0.1221
+802it [02:40,  4.99it/s]
+142it [00:03, 35.67it/s]
+0it [00:00, ?it/s]y_true (18100, 1) y_hat (18100, 1)
+Epoch [8/30], train_Loss: 0.9267, val_loss: 2.2043, pearson: 0.1072, spearman: 0.2035
+802it [02:40,  4.99it/s]
+142it [00:03, 37.89it/s]
+0it [00:00, ?it/s]y_true (18100, 1) y_hat (18100, 1)
+Epoch [9/30], train_Loss: 0.9177, val_loss: 2.3642, pearson: 0.0222, spearman: 0.1318
+802it [02:40,  4.98it/s]
+142it [00:03, 36.45it/s]
+y_true (18100, 1) y_hat (18100, 1)
+Epoch [10/30], train_Loss: 0.9113, val_loss: 2.3334, pearson: 0.0450, spearman: 0.1479
+802it [02:40,  4.99it/s]
+142it [00:03, 36.01it/s]
+0it [00:00, ?it/s]y_true (18100, 1) y_hat (18100, 1)
+Epoch [11/30], train_Loss: 0.9022, val_loss: 2.3150, pearson: 0.0390, spearman: 0.1482
+802it [02:41,  4.97it/s]
+142it [00:03, 37.34it/s]
+0it [00:00, ?it/s]y_true (18100, 1) y_hat (18100, 1)
+Epoch [12/30], train_Loss: 0.8957, val_loss: 2.3153, pearson: 0.0226, spearman: 0.1291
+802it [02:41,  4.98it/s]
+142it [00:03, 37.39it/s]
+y_true (18100, 1) y_hat (18100, 1)
+Epoch [13/30], train_Loss: 0.8874, val_loss: 2.2291, pearson: 0.0853, spearman: 0.1672
+802it [02:40,  4.99it/s]
+142it [00:03, 37.30it/s]
+y_true (18100, 1) y_hat (18100, 1)
+Epoch [14/30], train_Loss: 0.8821, val_loss: 2.2976, pearson: 0.0254, spearman: 0.1235
+802it [02:41,  4.98it/s]
+142it [00:03, 35.96it/s]
+0it [00:00, ?it/s]y_true (18100, 1) y_hat (18100, 1)
+Epoch [15/30], train_Loss: 0.8750, val_loss: 2.4125, pearson: -0.0134, spearman: 0.1007
+802it [02:40,  4.98it/s]
+142it [00:04, 34.92it/s]
+y_true (18100, 1) y_hat (18100, 1)
+Epoch [16/30], train_Loss: 0.8714, val_loss: 2.2520, pearson: 0.0792, spearman: 0.1675
+802it [02:40,  4.99it/s]
+142it [00:03, 36.92it/s]
+y_true (18100, 1) y_hat (18100, 1)
+Epoch [17/30], train_Loss: 0.8606, val_loss: 2.2841, pearson: 0.0481, spearman: 0.1366
+802it [02:40,  4.98it/s]
+142it [00:03, 39.37it/s]
+y_true (18100, 1) y_hat (18100, 1)
+Epoch [18/30], train_Loss: 0.8235, val_loss: 2.2371, pearson: 0.0810, spearman: 0.1746
+802it [02:40,  4.98it/s]
+142it [00:03, 37.56it/s]
+0it [00:00, ?it/s]y_true (18100, 1) y_hat (18100, 1)
+Epoch [19/30], train_Loss: 0.8130, val_loss: 2.2483, pearson: 0.0749, spearman: 0.1698
+802it [02:40,  4.98it/s]
+142it [00:03, 38.32it/s]
+y_true (18100, 1) y_hat (18100, 1)
+Epoch [20/30], train_Loss: 0.8082, val_loss: 2.2165, pearson: 0.0875, spearman: 0.1798
+802it [02:40,  4.98it/s]
+142it [00:03, 38.61it/s]
+y_true (18100, 1) y_hat (18100, 1)
+Epoch [21/30], train_Loss: 0.8029, val_loss: 2.2543, pearson: 0.0742, spearman: 0.1672
+802it [02:40,  4.99it/s]
+142it [00:03, 37.33it/s]
+y_true (18100, 1) y_hat (18100, 1)
+Epoch [22/30], train_Loss: 0.8002, val_loss: 2.2019, pearson: 0.1029, spearman: 0.1931
+802it [02:40,  4.99it/s]
+142it [00:03, 38.47it/s]
+y_true (18100, 1) y_hat (18100, 1)
+Epoch [23/30], train_Loss: 0.7997, val_loss: 2.2502, pearson: 0.0709, spearman: 0.1654
+802it [02:40,  4.98it/s]
+142it [00:03, 37.76it/s]
+y_true (18100, 1) y_hat (18100, 1)
+Epoch [24/30], train_Loss: 0.7979, val_loss: 2.2540, pearson: 0.0757, spearman: 0.1710
+802it [02:40,  4.99it/s]
+142it [00:03, 37.83it/s]
+y_true (18100, 1) y_hat (18100, 1)
+Epoch [25/30], train_Loss: 0.7934, val_loss: 2.2508, pearson: 0.0704, spearman: 0.1627
+802it [02:41,  4.98it/s]
+142it [00:03, 38.16it/s]
+0it [00:00, ?it/s]y_true (18100, 1) y_hat (18100, 1)
+Epoch [26/30], train_Loss: 0.7919, val_loss: 2.2279, pearson: 0.0892, spearman: 0.1800
+802it [02:41,  4.98it/s]
+142it [00:03, 38.15it/s]
+0it [00:00, ?it/s]y_true (18100, 1) y_hat (18100, 1)
+Epoch [27/30], train_Loss: 0.7893, val_loss: 2.2307, pearson: 0.0895, spearman: 0.1797
+802it [02:41,  4.98it/s]
+142it [00:03, 37.54it/s]
+0it [00:00, ?it/s]y_true (18100, 1) y_hat (18100, 1)
+Epoch [28/30], train_Loss: 0.7901, val_loss: 2.2323, pearson: 0.0868, spearman: 0.1742
+802it [02:41,  4.97it/s]
+142it [00:03, 38.78it/s]
+y_true (18100, 1) y_hat (18100, 1)
+Epoch [29/30], train_Loss: 0.7817, val_loss: 2.2376, pearson: 0.0832, spearman: 0.1722
+802it [02:40,  4.99it/s]
+142it [00:03, 38.62it/s]
+y_true (18100, 1) y_hat (18100, 1)
+Epoch [30/30], train_Loss: 0.7807, val_loss: 2.2363, pearson: 0.0828, spearman: 0.1715
+[1.1530770128058674, 1.0259832326610785, 1.0026753569333036, 0.9830653055053102, 0.964158022715861, 0.9465373857806151, 0.9376030603697769, 0.9267128544703981, 0.9177455411587571, 0.9113091098102846, 0.9022457681391899, 0.8957173764111098, 0.8874101844660361, 0.8821244405540742, 0.8749695154942776, 0.8713590583747759, 0.8605738084512459, 0.82349381705472, 0.8130102940554036, 0.8082063030126386, 0.8029327002398093, 0.8002425004121966, 0.7997482626366794, 0.7978758096992227, 0.793406867326941, 0.791851806224433, 0.7893446663817265, 0.790135745767346, 0.7816754346179249, 0.7806941881738696]
+Trasformer encoder epochs30 hidden 64 embed_dim 64 Layers 2 heads 4 loss[1.0, 0.0, 1.0]
+Saved training metrics to: training_metrics_Trasformer_encoder_epochs30_hidden_64_embed_dim_64_Layers_2_heads_4_loss[1.0,_0.0,_1.0]_2025-08-09_05-24.png
+
+Process finished with exit code 0
