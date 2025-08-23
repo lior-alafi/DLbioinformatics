@@ -1,0 +1,174 @@
+Num GPUs Available:  1
+GPU is available and being used.
+Loaded 170 total RBP sequences.
+Loaded 102578 total RNA sequences.
+Loaded binding data matrix of shape: (102578, 170)
+170
+102578
+
+Max RBP k-mer sequence length: 304
+Shape of padded RBP k-mer sequences: (170, 304)
+Number of unique RBP k-mers (vocabulary size): 5054
+
+Max RNA k-mer sequence length: 13
+Shape of padded RNA k-mer sequences: (102578, 13)
+Number of unique RNA k-mers (vocabulary size): 64
+
+Training FastText model for RBP k-mers...
+FastText model training complete for RBP.
+Shape of RBP embedding matrix: (5056, 64)
+
+Training FastText model for RNA k-mers...
+FastText model training complete for RNA.
+Shape of RNA embedding matrix: (66, 64)
+
+Total samples (combinations) generated: 17438260
+Loaded 30 total RBP sequences for validation set.
+Loaded 18100 total RNA sequences for validation set.
+Loaded binding data for validation set matrix of shape: (18100, 30)
+30
+18100
+Shape of padded RBP k-mer sequences: (30, 304)
+Shape of padded RNA k-mer sequences: (18100, 13)
+
+Total validation samples (combinations) generated: 543000
+
+--- Creating Model ---
+I0000 00:00:1755445888.740021  343298 gpu_device.cc:2019] Created device /job:localhost/replica:0/task:0/device:GPU:0 with 3620 MB memory:  -> device: 0, name: NVIDIA GeForce RTX 3050 6GB Laptop GPU, pci bus id: 0000:01:00.0, compute capability: 8.6
+Model: "RBP_RNA_Binding_Predictor_Transformer"
+┏━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━┓
+┃ Layer (type)        ┃ Output Shape      ┃    Param # ┃ Connected to      ┃
+┡━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━┩
+│ rbp_input           │ (None, 304)       │          0 │ -                 │
+│ (InputLayer)        │                   │            │                   │
+├─────────────────────┼───────────────────┼────────────┼───────────────────┤
+│ rna_input           │ (None, 13)        │          0 │ -                 │
+│ (InputLayer)        │                   │            │                   │
+├─────────────────────┼───────────────────┼────────────┼───────────────────┤
+│ rbp_positional_emb… │ (None, 304, 64)   │    343,040 │ rbp_input[0][0]   │
+│ (PositionalEmbeddi… │                   │            │                   │
+├─────────────────────┼───────────────────┼────────────┼───────────────────┤
+│ not_equal_3         │ (None, 304)       │          0 │ rbp_input[0][0]   │
+│ (NotEqual)          │                   │            │                   │
+├─────────────────────┼───────────────────┼────────────┼───────────────────┤
+│ rna_positional_emb… │ (None, 13, 64)    │      5,056 │ rna_input[0][0]   │
+│ (PositionalEmbeddi… │                   │            │                   │
+├─────────────────────┼───────────────────┼────────────┼───────────────────┤
+│ not_equal_1         │ (None, 13)        │          0 │ rna_input[0][0]   │
+│ (NotEqual)          │                   │            │                   │
+├─────────────────────┼───────────────────┼────────────┼───────────────────┤
+│ rbp_transformer_bl… │ (None, 304, 64)   │     33,472 │ rbp_positional_e… │
+│ (TransformerBlock)  │                   │            │ not_equal_3[0][0] │
+├─────────────────────┼───────────────────┼────────────┼───────────────────┤
+│ rna_transformer_bl… │ (None, 13, 64)    │     33,472 │ rna_positional_e… │
+│ (TransformerBlock)  │                   │            │ not_equal_1[0][0] │
+├─────────────────────┼───────────────────┼────────────┼───────────────────┤
+│ rbp_transformer_bl… │ (None, 304, 64)   │     33,472 │ rbp_transformer_… │
+│ (TransformerBlock)  │                   │            │ not_equal_3[0][0] │
+├─────────────────────┼───────────────────┼────────────┼───────────────────┤
+│ rna_transformer_bl… │ (None, 13, 64)    │     33,472 │ rna_transformer_… │
+│ (TransformerBlock)  │                   │            │ not_equal_1[0][0] │
+├─────────────────────┼───────────────────┼────────────┼───────────────────┤
+│ rbp_transformer_bl… │ (None, 304, 64)   │     33,472 │ rbp_transformer_… │
+│ (TransformerBlock)  │                   │            │ not_equal_3[0][0] │
+├─────────────────────┼───────────────────┼────────────┼───────────────────┤
+│ rna_transformer_bl… │ (None, 13, 64)    │     33,472 │ rna_transformer_… │
+│ (TransformerBlock)  │                   │            │ not_equal_1[0][0] │
+├─────────────────────┼───────────────────┼────────────┼───────────────────┤
+│ expand_dims         │ (None, 13, 1)     │          0 │ not_equal_1[0][0] │
+│ (ExpandDims)        │                   │            │                   │
+├─────────────────────┼───────────────────┼────────────┼───────────────────┤
+│ expand_dims_1       │ (None, 304, 1)    │          0 │ not_equal_3[0][0] │
+│ (ExpandDims)        │                   │            │                   │
+├─────────────────────┼───────────────────┼────────────┼───────────────────┤
+│ rna_rbp_cross_atte… │ (None, 13, 64)    │     33,472 │ rbp_transformer_… │
+│ (CrossAttentionBlo… │                   │            │ not_equal_3[0][0… │
+│                     │                   │            │ rna_transformer_… │
+│                     │                   │            │ not_equal_1[0][0] │
+├─────────────────────┼───────────────────┼────────────┼───────────────────┤
+│ cast (Cast)         │ (None, 13, 1)     │          0 │ expand_dims[0][0] │
+├─────────────────────┼───────────────────┼────────────┼───────────────────┤
+│ cast_1 (Cast)       │ (None, 304, 1)    │          0 │ expand_dims_1[0]… │
+├─────────────────────┼───────────────────┼────────────┼───────────────────┤
+│ multiply (Multiply) │ (None, 13, 64)    │          0 │ rna_rbp_cross_at… │
+│                     │                   │            │ cast[0][0]        │
+├─────────────────────┼───────────────────┼────────────┼───────────────────┤
+│ multiply_1          │ (None, 304, 64)   │          0 │ rbp_transformer_… │
+│ (Multiply)          │                   │            │ cast_1[0][0]      │
+├─────────────────────┼───────────────────┼────────────┼───────────────────┤
+│ rna_pooled          │ (None, 64)        │          0 │ multiply[0][0]    │
+│ (GlobalAveragePool… │                   │            │                   │
+├─────────────────────┼───────────────────┼────────────┼───────────────────┤
+│ rbp_pooled          │ (None, 64)        │          0 │ multiply_1[0][0]  │
+│ (GlobalAveragePool… │                   │            │                   │
+├─────────────────────┼───────────────────┼────────────┼───────────────────┤
+│ concatenated_vecto… │ (None, 128)       │          0 │ rna_pooled[0][0], │
+│ (Concatenate)       │                   │            │ rbp_pooled[0][0]  │
+├─────────────────────┼───────────────────┼────────────┼───────────────────┤
+│ mlp_dense_1 (Dense) │ (None, 512)       │     66,048 │ concatenated_vec… │
+├─────────────────────┼───────────────────┼────────────┼───────────────────┤
+│ dropout_14          │ (None, 512)       │          0 │ mlp_dense_1[0][0] │
+│ (Dropout)           │                   │            │                   │
+├─────────────────────┼───────────────────┼────────────┼───────────────────┤
+│ mlp_dense_2 (Dense) │ (None, 64)        │     32,832 │ dropout_14[0][0]  │
+├─────────────────────┼───────────────────┼────────────┼───────────────────┤
+│ dropout_15          │ (None, 64)        │          0 │ mlp_dense_2[0][0] │
+│ (Dropout)           │                   │            │                   │
+├─────────────────────┼───────────────────┼────────────┼───────────────────┤
+│ binding_strength_o… │ (None, 1)         │         65 │ dropout_15[0][0]  │
+│ (Dense)             │                   │            │                   │
+└─────────────────────┴───────────────────┴────────────┴───────────────────┘
+ Total params: 681,345 (2.60 MB)
+ Trainable params: 353,537 (1.35 MB)
+ Non-trainable params: 327,808 (1.25 MB)
+
+--- Training Model ---
+Epoch 1/15
+272472/272472 ━━━━━━━━━━━━━━━━━━━━ 13254s 49ms/step - loss: 0.1225 - mae: 0.2557 - val_loss: 0.2692 - val_mae: 0.3934
+Epoch 1: saving model to 01-0.27-attention.keras
+Pearson Correlation: 0.195395811481812
+Spearman Correlation: 0.12068659729600431
+
+Epoch 2/15
+272472/272472 ━━━━━━━━━━━━━━━━━━━━ 13253s 49ms/step - loss: 0.1093 - mae: 0.2379 - val_loss: 0.2832 - val_mae: 0.3995
+Epoch 2: saving model to 02-0.28-attention.keras
+Pearson Correlation: 0.18982476722546127
+Spearman Correlation: 0.1916079137943846
+
+Epoch 3/15
+272472/272472 ━━━━━━━━━━━━━━━━━━━━ 13248s 49ms/step - loss: 0.0998 - mae: 0.2215 - val_loss: 0.2865 - val_mae: 0.4257
+Epoch 3: saving model to 03-0.29-attention.keras
+Pearson Correlation: 0.22046430435050068
+Spearman Correlation: 0.1282063436047082
+
+Epoch 4/15
+272472/272472 ━━━━━━━━━━━━━━━━━━━━ 13197s 48ms/step - loss: 0.1035 - mae: 0.2278 - val_loss: 0.2903 - val_mae: 0.4084
+Epoch 4: saving model to 04-0.29-attention.keras
+Pearson Correlation: 0.05982616930840785
+Spearman Correlation: 0.028690904025936305
+
+Epoch 5/15
+272472/272472 ━━━━━━━━━━━━━━━━━━━━ 13225s 49ms/step - loss: 0.1032 - mae: 0.2271 - val_loss: 0.2642 - val_mae: 0.3883
+Epoch 5: saving model to 05-0.26-attention.keras
+Pearson Correlation: 0.2152409708563521
+Spearman Correlation: 0.14565813704310251
+
+Epoch 6/15
+272472/272472 ━━━━━━━━━━━━━━━━━━━━ 13267s 49ms/step - loss: 0.1047 - mae: 0.2299 - val_loss: 0.2463 - val_mae: 0.3792
+Epoch 6: saving model to 06-0.25-attention.keras
+Pearson Correlation: 0.27274663500899604
+Spearman Correlation: 0.23204852162161557
+
+Epoch 7/15
+272472/272472 ━━━━━━━━━━━━━━━━━━━━ 13239s 48ms/step - loss: 0.1064 - mae: 0.2325 - val_loss: 0.2795 - val_mae: 0.4124 - learning_rate: 0.0010
+Epoch 7: saving model to 07-0.28-attention.keras
+Pearson Correlation: 0.21566303027766917
+Spearman Correlation: 0.15530613864308784
+
+Epoch 8/15
+272472/272472 ━━━━━━━━━━━━━━━━━━━━ 13109s 48ms/step - loss: 0.1062 - mae: 0.2331 - val_loss: 0.3400 - val_mae: 0.4322 - learning_rate: 0.0010
+Epoch 8: saving model to 08-0.34-attention.keras
+Pearson Correlation: 0.10588131446937209
+Spearman Correlation: 0.13559155022276292
+
+Epoch 9/15
