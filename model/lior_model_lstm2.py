@@ -20,8 +20,8 @@ class RecommendationModelV2(nn.Module):
         self.num_directions = 2 if self.bidirectional else 1
 
         # Embedding layers
-        self.AGCU_embedding = nn.Embedding(len(self.AGCU_V), self.embedding_dim)
-        self.AA_embedding = nn.Embedding(len(self.AA_V), self.embedding_dim)
+        self.AGCU_embedding = nn.Embedding(len(self.AGCU_V), self.embedding_dim,padding_idx=0)
+        self.AA_embedding = nn.Embedding(len(self.AA_V), self.embedding_dim,padding_idx=0)
 
         # LSTM input sizes (handle n-grams)
         rna_lstm_input_size = self.embedding_dim if self.rna_n_gram_size <= 1 else self.embedding_dim * self.rna_n_gram_size
@@ -57,7 +57,7 @@ class RecommendationModelV2(nn.Module):
         self.fc2 = nn.Linear(fc_units[0], fc_units[0]*2)
         self.fc3 = nn.Linear(fc_units[0]*2, output_size)
 
-    def forward(self, nec_seq, rpb_seq):
+    def forward(self, nec_seq, rpb_seq, nec_mask=None, rpb_mask=None):
         # Handle RBP input
         if self.amino_n_gram_size > 1 and len(rpb_seq.shape) == 4:
             batch_size, max_len, _ = rpb_seq.shape
@@ -82,9 +82,12 @@ class RecommendationModelV2(nn.Module):
         rpb_out, _ = self.AA_lstm(rpb_embedded)   # [B, T, H*D]
         nec_out, _ = self.AGCU_lstm(nec_embedded) # [B, T, H*D]
 
-        # Mean pooling over time steps
-        rpb_repr = rpb_out.mean(dim=1)  # [B, H*D]
-        nec_repr = nec_out.mean(dim=1)  # [B, H*D]
+        if (nec_mask is not None) and (rpb_mask is not None):
+            rpb_repr = self.masked_mean(rpb_out, rpb_mask)
+            nec_repr = self.masked_mean(nec_out, nec_mask)
+        else:
+            rpb_repr = rpb_out.mean(dim=1)
+            nec_repr = nec_out.mean(dim=1)
 
         # Merge features
         interaction_mul = nec_repr * rpb_repr
@@ -100,5 +103,12 @@ class RecommendationModelV2(nn.Module):
         out = self.fc3(out)
 
         return out
+
+    def masked_mean(self,x, mask):
+        # x: [B,T,H], mask: [B,T] עם 1 לטוקן אמיתי, 0 ל-PAD
+        mask = mask.unsqueeze(-1)  # [B,T,1]
+        x = x * mask
+        lengths = mask.sum(1).clamp(min=1)  # [B,1]
+        return x.sum(1) / lengths  # [B,H]
 
 

@@ -1,3 +1,5 @@
+import os
+
 import torch
 import numpy as np
 from torch.utils.data import Dataset
@@ -5,6 +7,9 @@ from abc import ABC, abstractmethod
 
 # --- Abstract Base Class for Preprocessing ---
 class BasePreprocessing(ABC):
+    _registry: dict = {}  # auto-register subclasses
+
+
     def __init__(self, filename=None, n_gram_size=1, pad_token='<PAD>'):
         self.n_gram_size = n_gram_size
         self.pad_token = pad_token
@@ -17,8 +22,54 @@ class BasePreprocessing(ABC):
     def process(self, *args, **kwargs):
         pass
 
+    def save(self, path: str):
+        """שומר את האובייקט לקובץ (ללא תלות ב-__init__ בטעינה)."""
+        payload = {
+            "__type__": "preprocessor",
+            "__class__": self.__class__.__name__,
+            "__version__": 1,
+            "state": self._state_dict(),
+        }
+        os.makedirs(os.path.dirname(path) or ".", exist_ok=True)
+        torch.save(payload, path)
 
+# --- רישום אוטומטי של מחלקות יורשות ---
+    def __init_subclass__(cls, **kwargs):
+        super().__init_subclass__(**kwargs)
+        BasePreprocessing._registry[cls.__name__] = cls
 
+    # --- מצב בסיסי + הרחבות לכל מחלקה ---
+    def _state_dict(self) -> dict:
+        base = {
+            "n_gram_size": self.n_gram_size,
+            "pad_token": self.pad_token,
+            "vocab": getattr(self, "vocab", None),
+            "vocab_size": getattr(self, "vocab_size", 0),
+        }
+        base.update(self._extra_state())
+        return base
+
+    def _extra_state(self) -> dict:
+        """להחלפה במחלקות יורשות: החזר שדות ספציפיים."""
+        return {}
+
+    @classmethod
+    def _from_state(cls, state: dict):
+        """בונה אובייקט ישירות מהמצב (עוקף __init__)."""
+        obj = object.__new__(cls)
+        obj.n_gram_size = state["n_gram_size"]
+        obj.pad_token = state["pad_token"]
+        obj.vocab = state.get("vocab")
+        obj.vocab_size = state.get("vocab_size", len(obj.vocab) if obj.vocab is not None else 0)
+        obj.idx_to_char = None
+        obj.char_to_idx = None
+        cls._load_extra_state(obj, state)
+        return obj
+
+    @classmethod
+    def _load_extra_state(cls, obj, state: dict):
+        """להחלפה במחלקות יורשות: שחזור שדות ספציפיים."""
+        pass
 
 class EmbeddingKMERPreprocessing(BasePreprocessing):
     def __init__(self,filename,n_gram_size=1,pad_token='<PAD>'):
@@ -34,6 +85,14 @@ class EmbeddingKMERPreprocessing(BasePreprocessing):
 
         self.vocab = {kmer: i+1 for i,kmer in enumerate(sorted(list(all_tokens_in_data)))}
         self.vocab[pad_token] = 0
+
+    def _extra_state(self):
+        return {"max_kmers_size": getattr(self, "max_kmers_size", 0)}
+
+    @classmethod
+    def _load_extra_state(cls, obj, state: dict):
+        obj.max_kmers_size = state.get("max_kmers_size", 0)
+
     def generate_kmers(self,seq, k):
         """Generates non-overlapping k-mers from a sequence."""
         if len(seq) < k:
@@ -46,6 +105,8 @@ class EmbeddingKMERPreprocessing(BasePreprocessing):
                                     constant_values=self.vocab[self.pad_token])
 
         return torch.tensor(padded, dtype=torch.long)
+
+
 class EmbeddingPreprocessing(BasePreprocessing):
     def __init__(self, filename, n_gram_size=1, pad_token='<PAD>'):
         super().__init__(filename, n_gram_size, pad_token)
@@ -60,6 +121,15 @@ class EmbeddingPreprocessing(BasePreprocessing):
         self.idx_to_char = {i: char for char, i in self.vocab.items()}
         self.vocab_size = len(self.vocab)  # Update vocab_size
         print(f"Embedding Vocabulary size: {self.vocab_size}")
+
+
+    def _extra_state(self):
+        return {"idx_to_char": getattr(self, "idx_to_char", None)}
+
+    @classmethod
+    def _load_extra_state(cls, obj, state: dict):
+        obj.idx_to_char = state.get("idx_to_char")
+        obj.char_to_idx = None
 
     def process(self, sequence, max_len):
         if self.n_gram_size > 1:
@@ -100,6 +170,14 @@ class OneHotPreprocessing(BasePreprocessing):
         self.char_to_idx = {char: i for i, char in enumerate(all_chars)}
         self.vocab_size = len(self.char_to_idx)
         print(f"One-Hot Vocabulary size: {self.vocab_size}")
+
+    def _extra_state(self):
+        return {"char_to_idx": getattr(self, "char_to_idx", None)}
+
+    @classmethod
+    def _load_extra_state(cls, obj, state: dict):
+        obj.char_to_idx = state.get("char_to_idx")
+        obj.vocab_size = len(obj.char_to_idx) if obj.char_to_idx is not None else 0
 
     def process(self, sequence, max_len):
         if self.n_gram_size > 1:
@@ -200,6 +278,21 @@ class PreprocessingSharedEmbedding(BasePreprocessing):
             tokens = list(sequence)
         return [self.vocab.get(tok, self.vocab[self.pad_token]) for tok in tokens]
 
+    def _extra_state(self):
+        return {
+            "step_size": self.step_size,
+            "rna_file": getattr(self, "rna_file", None),
+            "rbp_file": getattr(self, "rbp_file", None),
+            "idx_to_token": getattr(self, "idx_to_token", None),
+        }
+
+    @classmethod
+    def _load_extra_state(cls, obj, state: dict):
+        obj.step_size = state["step_size"]
+        obj.rna_file = state.get("rna_file")
+        obj.rbp_file = state.get("rbp_file")
+        obj.idx_to_token = state.get("idx_to_token")
+
     def process(self, rna_sequence, rbp_sequence, rna_max_len, rbp_max_len):
         rna_encoded = self.encode_sequence(rna_sequence, use_kmer=True)
         rbp_encoded = self.encode_sequence(rbp_sequence, use_kmer=False)
@@ -268,14 +361,21 @@ class CustomDataset(Dataset):
         self.num_samples = len(self.rna_sequences)
         if len(self.amino_sequences) == 0:
             raise ValueError("Amino acid sequences file is empty or not found.")
+        self.num_samples *= len(self.amino_sequences)
+
 
     def __len__(self):
         return self.num_samples
 
     def __getitem__(self, idx):
-        rna_sequence = self.rna_sequences[idx]
-        amino_idx = idx % len(self.amino_sequences)
-        amino_sequence = self.amino_sequences[amino_idx]
+
+        K = len(self.amino_sequences)
+        rna_idx = idx // K
+        rbp_idx = idx % K
+
+        rna_sequence = self.rna_sequences[rna_idx]
+        amino_sequence = self.amino_sequences[rbp_idx]
+
 
         if isinstance(self.preprocessing_rna, PreprocessingSharedEmbedding):
             rna_tensor, rbp_tensor, rna_mask, rbp_mask = self.preprocessing_rna.process(
@@ -290,7 +390,7 @@ class CustomDataset(Dataset):
             rbp_mask = (rbp_tensor != pad_rbp).long()
 
         if self.has_scores:
-            raw_score = self.scores[idx][amino_idx]
+            raw_score = self.scores[rna_idx][rbp_idx]
             if self.score_transform:
                 normalized_score = self.score_transform.transform([[raw_score]])[0][0]
             else:
