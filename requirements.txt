@@ -1,0 +1,10 @@
+tensorflow[and-cuda]
+keras
+numpy
+matplotlib
+PyQt6
+scipy
+keras-tuner
+pydot
+pydotplus
+graphviz

@@ -120,7 +120,6 @@ for kmer, i in rbp_kmer_to_int.items():
     if kmer in fasttext_model_rbp.wv:
         embedding_matrix_rbp[i] = fasttext_model_rbp.wv[kmer]
 print(f"Shape of RBP embedding matrix: {embedding_matrix_rbp.shape}")
-np.save("embedding_matrix_rbp.npy", embedding_matrix_rbp)
 
 print("\nTraining FastText model for RNA k-mers...")
 fasttext_model_rna = FastText(
@@ -141,7 +140,6 @@ for kmer, i in rna_kmer_to_int.items():
     if kmer in fasttext_model_rna.wv:
         embedding_matrix_rna[i] = fasttext_model_rna.wv[kmer]
 print(f"Shape of RNA embedding matrix: {embedding_matrix_rna.shape}")
-np.save("embedding_matrix_rna.npy", embedding_matrix_rna)
 
 num_rna_seqs = padded_rna_kmer_sequences.shape[0]
 num_rbp_seqs = padded_rbp_kmer_sequences.shape[0]
@@ -649,4 +647,3 @@ else:
             CorrelationLogger(test_generator),
         ],
     )
-    model.save(str(saved_model_path))
