@@ -70,7 +70,17 @@ class BasePreprocessing(ABC):
     def _load_extra_state(cls, obj, state: dict):
         """להחלפה במחלקות יורשות: שחזור שדות ספציפיים."""
         pass
-
+def load_preprocessor(path: str) -> BasePreprocessing:
+    """טוען כל Preprocessing ששמור עם .save(...) לפי שם המחלקה מה-payload."""
+    payload = torch.load(path, map_location="cpu")
+    if payload.get("__type__") != "preprocessor":
+        raise ValueError(f"File at {path} is not a preprocessor payload")
+    class_name = payload["__class__"]
+    cls = BasePreprocessing._registry.get(class_name)
+    if cls is None:
+        raise ValueError(f"Unknown preprocessor class: {class_name}. "
+                         f"Known: {list(BasePreprocessing._registry)}")
+    return cls._from_state(payload["state"])
 class EmbeddingKMERPreprocessing(BasePreprocessing):
     def __init__(self,filename,n_gram_size=1,pad_token='<PAD>'):
         super().__init__(filename, n_gram_size, pad_token)
@@ -366,16 +376,17 @@ class CustomDataset(Dataset):
 
     def __len__(self):
         return self.num_samples
-
-    def __getitem__(self, idx):
-
+    def get_seqs_by_index(self,idx):
         K = len(self.amino_sequences)
         rna_idx = idx // K
         rbp_idx = idx % K
 
         rna_sequence = self.rna_sequences[rna_idx]
         amino_sequence = self.amino_sequences[rbp_idx]
+        return rna_idx,rna_sequence,rbp_idx,amino_sequence
 
+    def __getitem__(self, idx):
+        rna_idx,rna_sequence,rbp_idx,amino_sequence = self.get_seqs_by_index(idx)
 
         if isinstance(self.preprocessing_rna, PreprocessingSharedEmbedding):
             rna_tensor, rbp_tensor, rna_mask, rbp_mask = self.preprocessing_rna.process(
