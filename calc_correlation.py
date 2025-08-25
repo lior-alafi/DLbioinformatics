@@ -1,23 +1,31 @@
+import math
+
+from scipy.stats import pearsonr, spearmanr # For calculating Spearman/Pearson correlation
 import tensorflow as tf
 from tensorflow import keras
 from tensorflow.keras import layers
 import numpy as np
-
 from tqdm import tqdm
-import argparse
-import datetime
-import os
-import pathlib
 
 RBP_KMER_SIZE = 3
 RNA_KMER_SIZE = 3
 MAX_RBP_KMER_LEN = 304
 MAX_RNA_KMER_LEN = 13
 
+print("Num GPUs Available: ", len(tf.config.list_physical_devices('GPU')))
+if tf.config.list_physical_devices('GPU'):
+    print("GPU is available and being used.")
+else:
+    print("No GPU detected. TensorFlow will run on CPU.")
+
 def load_sequences(filepath):
     """Loads sequences from a text file, one sequence per line."""
     with open(filepath, 'r') as f:
         return [line.strip() for line in f]
+
+def load_binding_data(filepath):
+    """Loads binding strength data from a space/tab-separated file."""
+    return np.loadtxt(filepath)
 
 def generate_kmers(sequence, k=3):
     """Generates non-overlapping k-mers from a sequence."""
@@ -25,69 +33,79 @@ def generate_kmers(sequence, k=3):
         return [] # Return empty list if sequence is shorter than k-mer size
     return [sequence[i:i+k] for i in range(0, len(sequence) - k + 1, k)]
 
-def run_gpu_check():
-    print("Num GPUs Available: ", len(tf.config.list_physical_devices('GPU')))
-    if tf.config.list_physical_devices('GPU'):
-        print("GPU is available and being used.")
-    else:
-        print("No GPU detected. TensorFlow will run on CPU.")
+validation_rbp_sequences = load_sequences('sample_data2/validation_rbps2_seq.30.txt')
+validation_rna_sequences = load_sequences('sample_data2/validation_rna_seq.18100.txt')
+# Load the binding strength matrix
+validation_binding_data = load_binding_data('sample_data2/validation_scores.18100.txt')
 
-def generate_all_possible_pairs(padded_rbp_kmer_sequences, padded_rna_kmer_sequences):
-    validation_indices = []
-    for i in range(padded_rna_kmer_sequences.shape[0]):
-        for j in range(padded_rbp_kmer_sequences.shape[0]):
-            validation_indices.append((i, j))
-    return validation_indices
+print(f"Loaded {len(validation_rbp_sequences)} total RBP sequences for validation set.")
+print(f"Loaded {len(validation_rna_sequences)} total RNA sequences for validation set.")
+print(f"Loaded binding data for validation set matrix of shape: {validation_binding_data.shape}")
 
-def load_data(rbp_file_path: str, rna_file_path: str):
-    rbp_sequences = load_sequences(rbp_file_path)
-    rna_sequences = load_sequences(rna_file_path)
-    print(f"Loaded {len(rbp_sequences)} total RBP sequences for prediction.")
-    print(f"Loaded {len(rna_sequences)} total RNA sequences for prediction.")
+# Generate k-mer sequences for RBP
+validation_rbp_kmer_sequences = [generate_kmers(seq, k=RBP_KMER_SIZE) for seq in validation_rbp_sequences]
+print(len(validation_rbp_kmer_sequences))
 
-    # Generate k-mer sequences for RBP and RNA
-    rbp_kmer_sequences = [generate_kmers(seq, k=RBP_KMER_SIZE) for seq in rbp_sequences]
-    rna_kmer_sequences = [generate_kmers(seq, k=RNA_KMER_SIZE) for seq in rna_sequences]
+# Generate k-mer sequences for RNA
+validation_rna_kmer_sequences = [generate_kmers(seq, k=RNA_KMER_SIZE) for seq in validation_rna_sequences]
+print(len(validation_rna_kmer_sequences))
 
-    # Encode k-mer sequences into integer sequences
-    rna_kmer_vocab = np.load("rna_kmer_vocab.npy")
-    rna_kmer_to_int = {kmer: i + 1 for i, kmer in enumerate(rna_kmer_vocab)}
-    encoded_rna_kmer_sequences = [
-        [rna_kmer_to_int.get(kmer, len(rna_kmer_vocab) + 1) for kmer in seq_kmers]
-        for seq_kmers in rna_kmer_sequences
-    ]
-    padded_rna_kmer_sequences = keras.preprocessing.sequence.pad_sequences(
-        encoded_rna_kmer_sequences, maxlen=MAX_RNA_KMER_LEN, padding='post'
-    )
-    rbp_kmer_vocab = np.load("rbp_kmer_vocab.npy")
-    rbp_kmer_to_int = {kmer: i + 1 for i, kmer in enumerate(rbp_kmer_vocab)}
-    encoded_rbp_kmer_sequences = [
-        [rbp_kmer_to_int.get(kmer, len(rbp_kmer_vocab) + 1) for kmer in seq_kmers]
-        for seq_kmers in rbp_kmer_sequences
-    ]
-    padded_rbp_kmer_sequences = keras.preprocessing.sequence.pad_sequences(
-        encoded_rbp_kmer_sequences, maxlen=MAX_RBP_KMER_LEN, padding='post'
-    )
-    print(f"Shape of padded RBP k-mer sequences: {padded_rbp_kmer_sequences.shape}")
-    print(f"Shape of padded RNA k-mer sequences: {padded_rna_kmer_sequences.shape}")
-    return padded_rbp_kmer_sequences, padded_rna_kmer_sequences
+rna_kmer_vocab = np.load("rna_kmer_vocab.npy")
+rbp_kmer_vocab = np.load("rbp_kmer_vocab.npy")
+# Encode k-mer sequences into integer sequences
+RNA_UNKNOWN_TOKEN_INDEX = len(rna_kmer_vocab) + 1
+rna_kmer_to_int = {kmer: i + 1 for i, kmer in enumerate(rna_kmer_vocab)}
+encoded_validation_rna_kmer_sequences = [
+    [rna_kmer_to_int.get(kmer, RNA_UNKNOWN_TOKEN_INDEX) for kmer in seq_kmers] # Use .get(kmer, 0) for safety
+    for seq_kmers in validation_rna_kmer_sequences
+]
 
+# Encode RBP k-mer sequences into integer sequences
+RBP_UNKNOWN_TOKEN_INDEX = len(rbp_kmer_vocab) + 1
+rbp_kmer_to_int = {kmer: i + 1 for i, kmer in enumerate(rbp_kmer_vocab)}
+encoded_validation_rbp_kmer_sequences = [
+    [rbp_kmer_to_int.get(kmer, RBP_UNKNOWN_TOKEN_INDEX) for kmer in seq_kmers] # Use .get(kmer, 0) for safety
+    for seq_kmers in validation_rbp_kmer_sequences
+]
 
-class TestDataGenerator(keras.utils.Sequence):
+padded_validation_rbp_kmer_sequences = keras.preprocessing.sequence.pad_sequences(
+    encoded_validation_rbp_kmer_sequences, maxlen=MAX_RBP_KMER_LEN, padding='post'
+)
+padded_validation_rna_kmer_sequences = keras.preprocessing.sequence.pad_sequences(
+    encoded_validation_rna_kmer_sequences, maxlen=MAX_RNA_KMER_LEN, padding='post'
+)
+
+print(f"Shape of padded RBP k-mer sequences: {padded_validation_rbp_kmer_sequences.shape}")
+print(f"Shape of padded RNA k-mer sequences: {padded_validation_rna_kmer_sequences.shape}")
+
+validation_num_rna_seqs = padded_validation_rna_kmer_sequences.shape[0]
+validation_num_rbp_seqs = padded_validation_rbp_kmer_sequences.shape[0]
+
+# Generate all possible (rna_idx, rbp_idx) combinations
+validation_indices = []
+for i in range(validation_num_rna_seqs):
+    for j in range(validation_num_rbp_seqs):
+        validation_indices.append((i, j))
+
+print(f"\nTotal validation samples (combinations) generated: {len(validation_indices)}")
+
+class DataGenerator(keras.utils.Sequence):
     'Generates data for Keras'
-    def __init__(self, list_indices, padded_rna_seqs, padded_rbp_seqs, batch_size):
+    def __init__(self, list_indices, padded_rna_seqs, padded_rbp_seqs, binding_data, batch_size=32, shuffle=True):
         self.list_indices = list_indices # List of (rna_idx, rbp_idx) tuples
         self.padded_rna_seqs = padded_rna_seqs
         self.padded_rbp_seqs = padded_rbp_seqs
+        self.binding_data = binding_data
         self.batch_size = batch_size
-        self.indices = np.arange(len(self.list_indices))
+        self.shuffle = shuffle
+        self.on_epoch_end()
 
     def __len__(self):
-        """ Denotes the number of batches per epoch """
-        return len(self.list_indices) // self.batch_size
+        'Denotes the number of batches per epoch'
+        return int(np.floor(len(self.list_indices) / self.batch_size))
 
     def __getitem__(self, index):
-        """ Generate one batch of data """
+        'Generate one batch of data'
         # Generate indices of the batch within self.list_indices
         indices_in_batch = self.indices[index*self.batch_size:(index+1)*self.batch_size]
 
@@ -95,20 +113,63 @@ class TestDataGenerator(keras.utils.Sequence):
         batch_combination_indices = [self.list_indices[k] for k in indices_in_batch]
 
         # Generate data for this batch
-        X_rna, X_rbp = self.__data_generation(batch_combination_indices)
-        return {'rna_input': X_rna, 'rbp_input': X_rbp}
+        X_rna, X_rbp, y = self.__data_generation(batch_combination_indices)
+        return {'rna_input': X_rna, 'rbp_input': X_rbp}, y
+
+    def on_epoch_end(self):
+        'Updates indices after each epoch'
+        self.indices = np.arange(len(self.list_indices))
+        if self.shuffle == True:
+            np.random.shuffle(self.indices)
 
     def __data_generation(self, batch_combination_indices):
-        """ Generates data containing batch_size samples """
+        'Generates data containing batch_size samples'
         # Pre-allocate arrays for efficiency
-        X_rna_batch = np.empty((self.batch_size, self.padded_rna_seqs.shape[1]), dtype=self.padded_rna_seqs.dtype)
-        X_rbp_batch = np.empty((self.batch_size, self.padded_rbp_seqs.shape[1]), dtype=self.padded_rbp_seqs.dtype)
+        X_rna_batch = np.empty((len(batch_combination_indices), self.padded_rna_seqs.shape[1]), dtype=self.padded_rna_seqs.dtype)
+        X_rbp_batch = np.empty((len(batch_combination_indices), self.padded_rbp_seqs.shape[1]), dtype=self.padded_rbp_seqs.dtype)
+        y_batch = np.empty((len(batch_combination_indices),), dtype=self.binding_data.dtype)
 
         for i, (rna_idx, rbp_idx) in enumerate(batch_combination_indices):
             X_rna_batch[i] = self.padded_rna_seqs[rna_idx]
             X_rbp_batch[i] = self.padded_rbp_seqs[rbp_idx]
+            y_batch[i] = self.binding_data[rna_idx, rbp_idx]
 
-        return X_rna_batch, X_rbp_batch
+        return X_rna_batch, X_rbp_batch, y_batch
+
+
+class CorrelationLogger(keras.callbacks.Callback):
+    def __init__(self, test_generator):
+        super().__init__()
+        self.test_generator = test_generator
+
+    def logging(self):
+        all_test_actuals = test_generator.binding_data
+        all_test_predictions = np.zeros_like(all_test_actuals)
+        for i in tqdm(range(len(test_generator) + 1)):
+            indices_in_batch = test_generator.indices[i * test_generator.batch_size:(i + 1) * test_generator.batch_size]
+            batch_combination_indices = np.array([test_generator.list_indices[k] for k in indices_in_batch])
+
+            inputs, actuals = self.test_generator.__getitem__(i)[:2]  # Get inputs and actuals (ignore sample_weights)
+            predictions_batch = model.predict(inputs, verbose=0).flatten()
+            all_test_predictions[batch_combination_indices[:, 0], batch_combination_indices[:, 1]] = predictions_batch[
+                                                                                            :len(indices_in_batch)]
+        avg_pearson_corr = 0.0
+        avg_spearman_corr = 0.0
+        for i in range(all_test_predictions.shape[1]):
+            # Calculate Pearson/Spearman Correlation
+            pearson_corr, _ = pearsonr(all_test_actuals[:, i], all_test_predictions[:, i])
+            spearman_corr, _ = spearmanr(all_test_actuals[:, i], all_test_predictions[:, i])
+            print(f'Pearson Correlation: #{i} {pearson_corr}')
+            print(f'Spearman Correlation: #{i} {spearman_corr}')
+            if not math.isnan(pearson_corr):
+                avg_pearson_corr += abs(pearson_corr)
+            if not math.isnan(spearman_corr):
+                avg_spearman_corr += abs(spearman_corr)
+        print(f'Mean Pearson Correlation: {avg_pearson_corr / all_test_predictions.shape[1]}')
+        print(f'Mean Spearman Correlation: {avg_spearman_corr / all_test_predictions.shape[1]}')
+
+    def on_epoch_end(self, epoch, logs=None):
+        self.logging()
 
 @keras.utils.register_keras_serializable()
 class PositionalEmbedding(layers.Layer):
@@ -333,54 +394,18 @@ class CrossAttentionBlock(layers.Layer):
         })
         return config
 
+print("\n--- Loading a saved Model ---")
+model = keras.models.load_model("06-0.25-attention.keras")
+model.summary()
 
-def parse_arguments():
-    parser = argparse.ArgumentParser(
-        description="Run inference and export rbpXX.txt grouped by amino_idx."
-    )
-    parser.add_argument("out_dir", type=pathlib.Path, help="Output directory for CSV and rbpXX.txt files")
-    parser.add_argument("rbp_file", type=str, help="Path to RBP/amino sequences file")
-    parser.add_argument("rna_file", type=str, help="Path to RNA sequences file")
-    return parser.parse_args()
-
-
-def main():
-    arguments = parse_arguments()
-    # Make sure output directory exists
-    arguments.out_dir.mkdir(parents=True, exist_ok=True)
-
-    run_gpu_check()
-
-    print("--- Loading input data ---")
-    padded_rbp_kmer_sequences, padded_rna_kmer_sequences = load_data(arguments.rbp_file, arguments.rna_file)
-    pair_indices = generate_all_possible_pairs(padded_rbp_kmer_sequences, padded_rna_kmer_sequences)
-    print(f"Total validation samples (combinations) generated: {len(pair_indices)}")
-
-    print("--- Loading a saved Model ---")
-    model = keras.models.load_model("06-0.25-attention.keras")
-
-    test_generator = TestDataGenerator(
-        pair_indices,
-        padded_rna_kmer_sequences,
-        padded_rbp_kmer_sequences,
-        batch_size=1024,
-    )
-    predictions = np.zeros((padded_rna_kmer_sequences.shape[0], padded_rbp_kmer_sequences.shape[0]), dtype=np.float64)
-    for i in tqdm(range(len(test_generator) + 1)):
-        indices_in_batch = test_generator.indices[i*test_generator.batch_size:(i+1)*test_generator.batch_size]
-        batch_combination_indices = np.array([test_generator.list_indices[k] for k in indices_in_batch])
-
-        predictions_batch = model.predict(test_generator[i], verbose=0).flatten()
-        predictions[batch_combination_indices[:, 0], batch_combination_indices[:, 1]] = predictions_batch[:len(indices_in_batch)]
-
-    for i in tqdm(range(padded_rbp_kmer_sequences.shape[0])):
-        rna_predications = predictions[:, i]
-        rbp_output_filename = f"RBP2{int(i + 1):02d}.txt"
-        np.savetxt(os.path.join(arguments.out_dir, rbp_output_filename), rna_predications, fmt="%.6f")  # one score per line
-        print(f"Wrote #{len(predictions)} to {rbp_output_filename}")
-
-
-if __name__ == "__main__":
-    start = datetime.datetime.now()
-    main()
-    print(f'total time: {(datetime.datetime.now() - start)}')
+test_generator = DataGenerator(
+    validation_indices,
+    padded_validation_rna_kmer_sequences,
+    padded_validation_rbp_kmer_sequences,
+    validation_binding_data,
+    batch_size=1024,
+    shuffle=False # No need to shuffle test data
+)
+logger = CorrelationLogger(test_generator)
+logger.set_model(model)
+logger.logging()
