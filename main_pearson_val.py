@@ -17,7 +17,7 @@ import argparse
 from utils.metrics import pearson_evaluation
 
 scaler = joblib.load("model/final/scaler.joblib")
-BATCH_SIZE = 64
+BATCH_SIZE = 128
 
 LR= 0.001
 
@@ -67,6 +67,8 @@ def main(withScore):
     n_rna = len(test_dataset.rna_sequences)
     n_rbp = len(test_dataset.amino_sequences)
     model_filepath = 'model/final/LSTM_V2_epochs_10_hidden_128_embed_dim_64_Layers_2_bidirectional_True_fc_[64]_MSE__pearson_0.26414856735218467_exp0_epoch_5.pt'
+    model_filepath = 'model/final/LSTM_V2_epochs_10_hidden_128_embed_dim_8_Layers_2_bidirectional_True_fc_[64]_MSE__pearson_0.30778221790973176_exp0_epoch_0.pt'
+    model_filepath = 'model/final/LSTM_V2_epochs_10_hidden_128_embed_dim_64_Layers_2_bidirectional_True_fc_[64]_MSE__pearson_0.2960118513175182_exp0_epoch_1.pt'
     model = load_model(model_filepath,rna_prep_emb_1,amino_prep_emb_1,{'EMBED_DIM': 64,
                                                                        'HIDDEN_SIZE': 128,
                                                                        'LSTM_LAYER': 2,

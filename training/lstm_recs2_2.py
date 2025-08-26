@@ -62,7 +62,7 @@ EPOCHS = 10
 # LSTM_LAYER = 4
 # LR= 0.01
 def training_loop(train_loader, device, model, criterion, optimizer, curr_losses):
-    for i, ((rna_batch, rbp_batch,rna_mask, rbp_mask), scores_batch) in tqdm(enumerate(train_loader)):
+    for i, ((rna_batch, rbp_batch,rna_mask, rbp_mask), scores_batch) in enumerate(tqdm(train_loader)):
         optimizer.zero_grad()
         rna_batch = rna_batch.to(device)
         rbp_batch = rbp_batch.to(device)
@@ -140,7 +140,7 @@ for experiment in range(3):
             y_orig = []
             y_hats = []
 
-            for i, ((rna_batch, amino_batch,rna_mask, rbp_mask), scores_batch) in tqdm(enumerate(val_loader)):
+            for i, ((rna_batch, amino_batch,rna_mask, rbp_mask), scores_batch) in enumerate(tqdm(val_loader)):
                 rna_batch = rna_batch.to(device)
                 amino_batch = amino_batch.to(device)
                 rna_mask = rna_mask.to(device)
