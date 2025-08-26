@@ -14,7 +14,7 @@ from utils.dataloader4 import  CustomDataset, load_preprocessor
 import argparse
 
 scaler = joblib.load("model/final/scaler.joblib")
-BATCH_SIZE = 64
+BATCH_SIZE = 1024
 
 LR= 0.001
 
