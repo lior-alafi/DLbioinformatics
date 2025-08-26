@@ -78,7 +78,6 @@ def main():
     # --- make a table and save ---
     df = pd.DataFrame(rows, columns=["amino_idx", "rna_idx", "score"])
     df = df.sort_values(["amino_idx", "rna_idx"])
-    out_dir = "model/final/2.64/rbp_txt"
     os.makedirs(out_dir, exist_ok=True)
     pad = max(2, len(str(int(df["amino_idx"].max()))))
 
